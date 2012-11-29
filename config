@@ -1,0 +1,6 @@
+R1
+30000
+R2 localhost 31000 1
+R3 localhost 32000 2
+
+
