@@ -5,7 +5,7 @@ from type import *
 class LsRouter:
 
     def __init__(self, filename):
-        self.router_socket = socket.socketpair(socket.AF_INET, socket.SOCK_DGRAM)
+        self.router_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.config = LsParser(filename)
         self.router_socket.bind("127.0.0.1", config.router_port)
 
