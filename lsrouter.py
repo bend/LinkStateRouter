@@ -1,11 +1,15 @@
 import socket
-from Type import *
+from lsparser import *
+from type import *
 
 class LsRouter:
 
-    self.s = socket.socketpair(socket.AF_INET, socket.SOCK_DGRAM)
+    
+    def __init__():
+        self.router_socket = socket.socketpair(socket.AF_INET, socket.SOCK_DGRAM)
+        self.config = 
 
-    def send(self, type, sender, reveiver, message = None):
+    def send(self, type, sender, receiver, message = None):
         if type == Type.HELLO:
             pass
         elif type == Type.LSP:
@@ -15,7 +19,7 @@ class LsRouter:
         elif type == Type.DATA:
             pass
         else:
-            print("Wrong Type")
+            sys.stderr.write("Wrong Type")
 
 
 
