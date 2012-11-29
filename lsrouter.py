@@ -9,7 +9,7 @@ class LsRouter:
         self.config = LsParser("config")
         self.router_socket.bind("127.0.0.1", config.router_port)
 
-    def start(self)
+    def start(self):
         while 1:
             data,addr = UDPSock.recvfrom(buf)
             if not data:
