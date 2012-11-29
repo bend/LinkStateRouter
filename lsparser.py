@@ -25,6 +25,7 @@ class LsParser:
             else:
                 split_line = line.strip().split(' ')
                 if split_line[0] == '':
+                    f.close()
                     return
                 if len(split_line) != 4:
                     sys.stderr.write("Incorrect number of fields in line")
@@ -37,6 +38,6 @@ class LsParser:
                 else:
                     self.neighbours[split_line[0]] = split_line[1:]
             i+=1
-            f.close()
+        f.close()
 
 
