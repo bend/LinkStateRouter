@@ -1,9 +1,10 @@
 import socket
-from Type import *
+from type import *
 
 class LsRouter:
 
-    self.s = socket.socketpair(socket.AF_INET, socket.SOCK_DGRAM)
+    self.router_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    self.routingTable
 
     def send(self, type, sender, reveiver, message = None):
         if type == Type.HELLO:
