@@ -5,8 +5,9 @@ import time
 class LsRouterTable:
 
     neighbours = {} #Neighbours
-    table = {} # routing table
-    timestamp = 0
+    table = {} # routing table : [Host: [via, last_lsp_seq_nb]]
+    update_timestamp = 0 # timestamp of the routing table
+    lsp_timestamp = 0
 
     def add_entry(self, dest, via):
         self.table[dest] = [via,-1]
@@ -18,7 +19,7 @@ class LsRouterTable:
            the router neighbours is accessible by self.neighbours
            The composition of neighbours is a map structured in the 
            following way:
-               [neighbourname1 : [host, port, cost, timestamp_hello, active?], ...
+               [neighbourname1 : [0:host, 1:port, 2:cost, 3:timestamp_hello, 4:active?, 5:ack_received?, 6:timestamp_lsp, 7:lsp_seq_nb], ...
         """
         f = open(file,'r')
         i = 0
@@ -42,8 +43,12 @@ class LsRouterTable:
                     return
                 else:
                     self.neighbours[split_line[0]] = split_line[1:]
-                    self.neighbours[split_line[0]].append(time.time())
-                    self.neighbours[split_line[0]].append(True)
+                    self.neighbours[split_line[0]].append(time.time()) #timestamp hello
+                    self.neighbours[split_line[0]].append(True) #active
+                    self.neighbours[split_line[0]].append(True) #ack_lsp received?
+                    self.neighbours[split_line[0]].append(time.time()) #lsp timestamp?
+                    self.neighbours[split_line[0]].append(-1) #lsp seq #?
+
                     self.add_entry(split_line[0], split_line[0])
 
             i+=1
@@ -55,6 +60,6 @@ class LsRouterTable:
 
         def update(self):
             #Will update the table
-            self.timestamp = time.time()
+            self.update_timestamp = time.time()
 
         
