@@ -15,7 +15,7 @@ class LsRouter:
 
     def __init__(self, filename, hello_interval, lsp_interval):
         # Create logger
-        logging.basicConfig(filename= "lsrouter.log", level = logging.DEBUG)
+        logging.basicConfig(format='%(asctime)s %(levelname)s\t%(message)s', level = logging.DEBUG)
         # Create Socket
         self.router_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         # Read conf
@@ -37,6 +37,18 @@ class LsRouter:
         # Start sender thread
         self.sender = LsRouterSender(self.router_socket, self.routing_table, self.buffer)
         self.sender.start()
+        
+        while(1):
+            command = sys.stdin.readline()
+            cmd = command.split(' ')
+            print('[',cmd[0].strip(),']')
+            if cmd[0].strip() == "send":
+                if len(cmd) >= 3:
+                    self.buffer.add_send(["DATA", self.routing_table.router_name, cmd[1], cmd[2]])
+                    print("Message sent")
+                else:
+                    print("Command usage : send [ROUTER NAME] [message]")
+        
 
 
 a = LsRouter(sys.argv[1], 5, 60)

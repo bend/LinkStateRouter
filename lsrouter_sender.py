@@ -25,11 +25,14 @@ class LsRouterSender(threading.Thread):
     def send_data(self, sender, receiver, msg):
         tosend = 'DATA '+sender+' '+receiver+' '+msg
         # TODO merge 2 tables ??
-        if receiver in self.routing_table.neighbours:
-            addr = (self.routing_table.neighbours[receiver][0], int(self.routing_table.neighbours[receiver][1]))
+        if receiver in self.routing_table.table:
+            # Get addr
+            via = self.routing_table.table[receiver]
+            if via[0] in self.routing_table.neighbours:
+                neighbour = self.routing_table.neighbours[via[0]]
+                addr = (neighbour[0], int(neighbour[1]))
             tosend = tosend.encode('UTF-8')
             self.router_socket.sendto(tosend, addr)
-            logging.debuf("Packet send : "+tosend)
         else:
             logging.error("Unknown destination")
 

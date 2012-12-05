@@ -8,6 +8,9 @@ class LsRouterTable:
     table = {} # routing table
     timestamp = 0
 
+    def add_entry(self, dest, via):
+        self.table[dest] = [via,-1]
+
     def __init__(self, file):
         """Reads and parses the config file. 
            the router name is accessible by self.router_name
@@ -15,7 +18,7 @@ class LsRouterTable:
            the router neighbours is accessible by self.neighbours
            The composition of neighbours is a map structured in the 
            following way:
-               [neighbourname1 : [host, port, cost, timestamp_hello, seq#, active?], ...
+               [neighbourname1 : [host, port, cost, timestamp_hello, active?], ...
         """
         f = open(file,'r')
         i = 0
@@ -40,14 +43,12 @@ class LsRouterTable:
                 else:
                     self.neighbours[split_line[0]] = split_line[1:]
                     self.neighbours[split_line[0]].append(time.time())
-                    self.neighbours[split_line[0]].append(0)
                     self.neighbours[split_line[0]].append(True)
+                    self.add_entry(split_line[0], split_line[0])
 
             i+=1
         f.close()
 
-        def add_entry(self, dest, via):
-            self.table[dest] = via;
 
         def remove_entry(self, dest):
             self.table.pop(dest)

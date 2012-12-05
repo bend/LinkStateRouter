@@ -36,7 +36,7 @@ class LsRouterListener(threading.Thread):
             if receiver == self.routing_table.router_name:
                 if sender in self.routing_table.neighbours:
                     self.routing_table.neighbours[sender][3] = time.time()
-                    self.routing_table.neighbours[sender][5] = True
+                    self.routing_table.neighbours[sender][4] = True
                 else:
                     logging.error("Received HELLO from unknown")
             else:

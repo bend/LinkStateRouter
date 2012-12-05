@@ -22,10 +22,10 @@ class LsRouterHello(threading.Thread):
         router_name = self.routing_table.router_name
         while(self.send):
             for key, value in routing_table.items():
-                if value[5]:
+                if value[4]:
                     if value[3] < time.time() - self.hello_interval*3:
                         #link is dead
-                        value[5] = False
+                        value[4] = False
                         logging.warning("Link "+key+" is inactive")
                         # send lsp to neighbours
                         self.send_lsp()
