@@ -1,42 +1,45 @@
 import threading
 import time
 import logging
+import math
 
 
 class LsRouterHello(threading.Thread):
 
-    def __init__(self, socket, neighbours, interval):
+    def __init__(self, router_socket, routing_table, hello_interval, lsp_interval, buffer):
         threading.Thread.__init__(self)
-        self.router_socket = socket
-        self.neighbours = neighbours
+        self.router_socket = router_socket
+        self.routing_table = routing_table
         self.send = True
-        self.interval = interval
+        self.hello_interval = hello_interval
+        self.lsp_interval = lsp_interval
+        self.buffer = buffer
+
 
     def run(self):
-        logging.info("Starting hello thread. Interval "+str(self.interval))
-        neighbours = self.neighbours.neighbours
-        router_name = self.neighbours.router_name
+        logging.info("Starting HELLO thread. Interval "+str(self.hello_interval))
+        routing_table = self.routing_table.neighbours
+        router_name = self.routing_table.router_name
         while(self.send):
-            for key, value in neighbours.items():
+            for key, value in routing_table.items():
                 if value[5]:
-                    if value[3] < time.time() - self.interval*3:
+                    if value[3] < time.time() - self.hello_interval*3:
                         #link is dead
                         value[5] = False
                         logging.warning("Link "+key+" is inactive")
+                        # send lsp to neighbours
+                        self.send_lsp()
                     else:
                         self.send_hello(router_name, key, (value[0], int(value[1])))
-            time.sleep(self.interval)
-
+            time.sleep(math.floor(self.lsp_interval/6))
+            if self.routing_table.timestamp < time.time() - self.lsp_interval:
+               self.send_lsp()
+    
     def send_hello(self, sender, receiver,addr):
         logging.debug("Sending HELLO to "+receiver)
         msg = 'HELLO '+sender+' '+receiver
         msg = msg.encode('UTF-8')
         self.router_socket.sendto(msg,addr)
 
-    def send_lsp(self, receiver):
-
-
-
-
-
-
+    def send_lsp(self):
+        pass

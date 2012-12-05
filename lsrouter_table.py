@@ -6,6 +6,7 @@ class LsRouterTable:
 
     neighbours = {} #Neighbours
     table = {} # routing table
+    timestamp = 0
 
     def __init__(self, file):
         """Reads and parses the config file. 
@@ -45,12 +46,14 @@ class LsRouterTable:
             i+=1
         f.close()
 
-
         def add_entry(self, dest, via):
             self.table[dest] = via;
 
         def remove_entry(self, dest):
             self.table.pop(dest)
 
+        def update(self):
+            #Will update the table
+            self.timestamp = time.time()
 
         
