@@ -42,13 +42,17 @@ class LsRouterListener(threading.Thread):
         if tokens[0] == Type.HELLO:
             logging.debug("Received HELLO packet from " + tokens[1])
             if len(tokens) != 3:
-                logging.error("Packet error")
+                logging.error("Hello Packet error")
             sender = tokens[1]
             receiver = tokens[2]
             if receiver == self.routing_table.router_name:
                 if sender in self.routing_table.neighbours:
                     self.routing_table.neighbours[sender][3] = time.time()
-                    self.routing_table.neighbours[sender][4] = True
+                    if not self.routing_table.neighbours[sender][4] :
+                        # Link is now active
+                        logging.info("New active link "+sender)
+                        self.routing_table.neighbours[sender][4] = True
+                        # TODO UPDATE GRAPH 
                 else:
                     logging.error("Received HELLO from unknown")
             else:
@@ -60,7 +64,7 @@ class LsRouterListener(threading.Thread):
         elif tokens[0] == Type.DATA:
             logging.debug("Received DATA packet from " + tokens[1])
             if len(tokens) != 4:
-                logging.error("Packet error")
+                logging.error("Hello Packet error")
             sender = tokens[1]
             receiver = tokens[2]
             msg = tokens[3]
