@@ -14,7 +14,18 @@ class LsRouterListener(threading.Thread):
         self.routing_table = routing_table
         self.buffer = buffer
         self.listen = True
-        self.graph = graph()
+        self.graph = self.create_graph()
+
+
+    def create_graph(self):
+        newgraph = graph()
+        newgraph.add_node(self.routing_table.router_name)
+        for key in self.routing_table.neighbours:
+            newgraph.add_node(key)
+            newgraph.add_edge((self.routing_table.router_name, key), \
+                            int(self.routing_table.neighbours[key][2]))
+        return newgraph
+    
 
     def run(self):
         logging.info("Starting listener thread")
@@ -69,13 +80,13 @@ class LsRouterListener(threading.Thread):
         if sender == self.routing_table.router_name:
             # Skip forwarded packet that was initited by this router
             return
-        if sender in self.routing_table.table:
-            if self.routing_table.table[sender][1] == seq_nb:
+        if sender in self.routing_table.seq:
+            if self.routing_table.seq[sender] == seq_nb:
                 # LSP already received, skip it
                 return
             else:
                 # LSP not received already, update seq num
-                self.routing_table.table[sender][1] = seq_nb
+                self.routing_table.seq[sender] = seq_nb
                 # Parse lsp and put it in table
                 # sender already in routing table and thus, already in the graph
                 
@@ -84,32 +95,39 @@ class LsRouterListener(threading.Thread):
             #TODO What to do here ??
             # Parse lsp and put it in table
             #sender not in routing table and thus, not in graph
-            self.graph.add_node(sender)
+            self.routing_table.seq[sender] = seq_nb
+            if sender not in self.routing_table.table:
+                self.graph.add_node(sender)
 
         
-        changed = self.add_edges(token)
+        changed = self.add_edges(tokens)
         if changed:
-            self.routing_table.table = get_next_step(graph, self.self.routing_table.router_name)
+            self.routing_table.table = get_next_step(self.graph, self.routing_table.router_name)
         
         # Send ack to sender
         self.buffer.add_send([Type.LSACK, sender, seq_nb])
         # Forward to neighboors
         self.buffer.add_send(tokens)
+        #print(self.routing_table.table)
+        #print(self.graph)
+        #print(self.routing_table.neighbours)
 
 
     def add_edges(self, tokens):
         sender = tokens[1]
         changed = False
         i = 3
-        while i < len(tokens):
+        while i < (len(tokens) - 1):
             #The edge is already in the graph
             if self.graph.has_edge((sender, tokens[i])):
                 #The edge weight is the same as known in the graph
-                if self.graph.edge_weight((sender, tokens[i])) != token[i+1]:
-                    self.graph.set_edge_weight(self, (sender, tokens[i]), token[i+1])
+                if self.graph.edge_weight((sender, tokens[i])) != (tokens[i+1]):
+                    self.graph.set_edge_weight((sender, tokens[i]), int(tokens[i+1]))
                     changed = True
             else:
-                self.graph.add_edge((sender, tokens[i]),token[i+1])
+                if not self.graph.has_node(tokens[i]):
+                    self.graph.add_node(tokens[i])
+                self.graph.add_edge((sender, tokens[i]), int(tokens[i+1]))
                 changed = True
             i += 2
         return changed

@@ -6,6 +6,7 @@ class LsRouterTable:
 
     neighbours = {} #Neighbours
     table = {} # routing table : [Host: [via, last_lsp_seq_nb]]
+    seq = {}
     update_timestamp = 0 # timestamp of the routing table
     lsp_timestamp = 0
     
