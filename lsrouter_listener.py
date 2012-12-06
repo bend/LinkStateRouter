@@ -98,10 +98,11 @@ class LsRouterListener(threading.Thread):
             if value[0] == addr[0] and value[1] == str(addr[1]):
                 sender = key
         if sender is None:
-            logging.error("Sender not found")
+            logging.error("Sender not found "+addr[0]+":"+str(addr[1]))
             return
 
         logging.debug("LSACK received from "+sender+" seq # "+tokens[2])
+
         # Check if ACK nb is valid
         if tokens[2] != self.routing_table.neighbours[sender][7]:
             # LSP Already aknowledged
@@ -109,4 +110,5 @@ class LsRouterListener(threading.Thread):
         elif sender in self.routing_table.neighbours:
             self.routing_table.neighbours[sender][5] = True
         else:
-            logging.error("Received unintended LSACK")
+            logging.error("Received unintended LSACK ")
+
