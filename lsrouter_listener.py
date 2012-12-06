@@ -81,10 +81,9 @@ class LsRouterListener(threading.Thread):
             # Parse lsp and put it in table
             # TODO
             pass
-        
         # Send ack to sender
         self.buffer.add_send([Type.LSACK, sender, seq_nb])
-        # Forward to neighboors
+        # Forward to neighboors (LSP Packet)
         self.buffer.add_send(tokens)
 
     def handle_ack(self, tokens, addr):
