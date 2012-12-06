@@ -6,9 +6,11 @@ class LsRouterTable:
 
     neighbours = {} #Neighbours
     table = {} # routing table : [Host: [via, last_lsp_seq_nb]]
-    seq = {} #TODO
+    seq = {}
+    graph = None
     update_timestamp = 0 # timestamp of the routing table
     lsp_timestamp = 0
+    
 
     def add_entry(self, dest, via):
         self.table[dest] = [via,-1]
@@ -63,4 +65,3 @@ class LsRouterTable:
             #Will update the table
             self.update_timestamp = time.time()
 
-        

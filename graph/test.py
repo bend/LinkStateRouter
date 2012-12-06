@@ -42,7 +42,10 @@ add_edge(graph, 'n4', 'n5', 3)
 
 #print(graph.edge_weight(('n2', 'n3')))
 #print(graph)
+#print('ok')
+#add_node(graph, 'n1')
 
+#print(graph.has_edge(('n2', 'n1')))
 dijk = shortest_path(graph, 'n1')
 print(dijk)
 print(" ")
