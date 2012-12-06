@@ -14,9 +14,9 @@ class LsRouter:
     ack_queue = []
 
 
-    def __init__(self, filename, hello_interval, lsp_interval):
+    def __init__(self, filename, hello_interval, lsp_interval, log_level):
         # Create logger
-        logging.basicConfig(format='%(asctime)s %(levelname)s\t%(message)s', level = logging.DEBUG)
+        logging.basicConfig(format='%(asctime)s %(levelname)s\t%(message)s', level = log_level)
         # Create Socket
         self.router_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         # Read conf
@@ -49,6 +49,49 @@ class LsRouter:
                 else:
                     print("Command usage : send [ROUTER NAME] [message]")
         
-# TODO GET OPT
 
-a = LsRouter(sys.argv[1], 5, 60)
+
+#############################################################################################################
+
+def print_help():
+    print("Usage : lsrouter [options] -c|--config filename")
+    print("Options:")
+    print("-h|--hello-interval interval\t\t: Hello packets interval")
+    print("-l|--lsp-interval interval\t\t: LSP packets interval")
+    print("-v|--log-level level\t\t\t: Log level (debug, info, warning, error)")
+
+
+
+options, remainder = getopt.getopt(sys.argv[1:], 'v:l:h:c:', ['log-level=','lsp-interval=','hello-interval='])
+
+
+log_level = logging.DEBUG
+hello_interval = 5
+lsp_interval = 60
+config = None
+
+for opt, arg in options:
+    if opt in ('-v','--log-level'):
+        if arg == "debug":
+            log_level=logging.DEBUG
+        if arg == "info":
+            log_level = logging.INFO
+        if arg == "warning":
+            log_level = logging.WARNING
+        if arg == "error":
+            log_level = logging.CRITICAL
+    elif opt in ('-l','--lsp-interval'):
+        lsp_interval = int(arg)
+    elif opt in ('-h', '--hello-interval'):
+        hello_interval = int(arg)
+    elif opt in ('-c', '--config'):
+        config = arg
+    else:
+        print("help")
+
+if config is None:
+    print("Missing configuration file")
+    print_help()
+    exit()
+
+a = LsRouter(config, hello_interval, lsp_interval, log_level)
