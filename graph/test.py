@@ -45,5 +45,8 @@ add_edge(graph, 'n4', 'n5', 3)
 
 dijk = shortest_path(graph, 'n1')
 print(dijk)
+print(" ")
+dict = get_next_step(graph, 'n1')
+print(dict)
 
 
