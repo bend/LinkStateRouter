@@ -7,6 +7,7 @@ from lsrouter_buffer import *
 from lsrouter_hello import *
 from type import *
 import sys
+import getopt
 
 class LsRouter:
     send_queue = []
@@ -41,7 +42,6 @@ class LsRouter:
         while(1):
             command = sys.stdin.readline()
             cmd = command.split(' ')
-            print('[',cmd[0].strip(),']')
             if cmd[0].strip() == "send":
                 if len(cmd) >= 3:
                     self.buffer.add_send(["DATA", self.routing_table.router_name, cmd[1], cmd[2]])
@@ -49,6 +49,6 @@ class LsRouter:
                 else:
                     print("Command usage : send [ROUTER NAME] [message]")
         
-
+# TODO GET OPT
 
 a = LsRouter(sys.argv[1], 5, 60)

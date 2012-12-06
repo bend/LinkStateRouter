@@ -13,7 +13,7 @@ class LsRouterTable:
     
 
     def add_entry(self, dest, via):
-        self.table[dest] = [via,-1]
+        self.table[dest] = [via]
 
     def __init__(self, file):
         """Reads and parses the config file. 

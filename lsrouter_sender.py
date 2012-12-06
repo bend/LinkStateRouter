@@ -60,8 +60,10 @@ class LsRouterSender(threading.Thread):
             if via[0] in self.routing_table.neighbours:
                 neighbour = self.routing_table.neighbours[via[0]]
                 addr = (neighbour[0], int(neighbour[1]))
-            tosend = tosend.encode('UTF-8')
-            self.router_socket.sendto(tosend, addr)
+                tosend = tosend.encode('UTF-8')
+                self.router_socket.sendto(tosend, addr)
+            else:
+                logging.error("Via is not a neighbour "+via[0])
         else:
             logging.error("Unknown host "+receiver)
 

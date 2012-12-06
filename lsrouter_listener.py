@@ -79,13 +79,16 @@ class LsRouterListener(threading.Thread):
         # Keep track of seq to avoid multiple receive and send of lsack
         if sender == self.routing_table.router_name:
             # Skip forwarded packet that was initited by this router
+            logging.debug("Skipping LSP initiatest by us")
             return
         if sender in self.routing_table.seq:
             if self.routing_table.seq[sender] == seq_nb:
                 # LSP already received, skip it
+                logging.debug("Skipping already received LSP")
                 return
             else:
                 # LSP not received already, update seq num
+                logging.debug("Received LSP from "+sender+" seq # "+seq_nb)
                 self.routing_table.seq[sender] = seq_nb
                 # Parse lsp and put it in table
                 # sender already in routing table and thus, already in the graph
@@ -131,6 +134,7 @@ class LsRouterListener(threading.Thread):
 
 
     def handle_ack(self, tokens, addr):
+        """ Handle received lsack"""
         if len(tokens) < 3:
             logging.error("LSACK packet error")
             return
@@ -141,16 +145,16 @@ class LsRouterListener(threading.Thread):
             if value[0] == addr[0] and value[1] == str(addr[1]):
                 sender = key
         if sender is None:
-            logging.error("Sender not found "+addr[0]+":"+str(addr[1]))
+            logging.error("LSACK Sender not found "+addr[0]+":"+str(addr[1]))
             return
-
-        logging.debug("LSACK received from "+sender+" seq # "+tokens[2])
 
         # Check if ACK nb is valid
-        if tokens[2] != self.routing_table.neighbours[sender][7]:
+        if int(tokens[2]) != self.routing_table.neighbours[sender][7]:
             # LSP Already aknowledged
+            logging.debug("LSACK already acknowledged seq# "+tokens[2])
             return
         elif sender in self.routing_table.neighbours:
+            logging.debug("LSACK received from "+sender+" seq # "+tokens[2])
             self.routing_table.neighbours[sender][5] = True
         else:
             logging.error("Received unintended LSACK ")

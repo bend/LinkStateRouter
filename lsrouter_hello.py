@@ -70,11 +70,11 @@ class LsRouterHello(threading.Thread):
         value = neighbours_table[receiver]
         if value[4]:
             neighbours_table[receiver][5] = False # Ack not received for this lsp
-            logging.debug("Re-sending LSP to "+key)
+            logging.debug("Re-sending LSP to "+key+" seq # "+str(self.seq_nb))
             self.router_socket.sendto(msg,(value[0], int(value[1])))
         self.routing_table.lsp_timestamp=time.time() #send time of the lsp
-        neighbours_table[receiver][6] = time.time()
-        neighbours_table[receiver][7] = self.seq_nb
+        value[6] = time.time()
+        value[7] = self.seq_nb
         self.seq_nb= (self.seq_nb+1)%100
 
 
@@ -93,7 +93,7 @@ class LsRouterHello(threading.Thread):
         for key,value in neighbours_table.items():
             if value[4]:
                 neighbours_table[key][5] = False # Ack not received for this lsp
-                logging.debug("Sending LSP to "+key)
+                logging.debug("Sending LSP to "+key+" seq # "+str(self.seq_nb))
                 self.router_socket.sendto(msg,(value[0], int(value[1])))
                 neighbours_table[key][6] = time.time()
                 neighbours_table[key][7] = self.seq_nb
