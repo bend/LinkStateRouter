@@ -1,6 +1,8 @@
 import threading
 import logging
 import time
+from graph import graph
+from dijkstra import *
 from type import Type
 
 
@@ -12,6 +14,7 @@ class LsRouterListener(threading.Thread):
         self.routing_table = routing_table
         self.buffer = buffer
         self.listen = True
+        self.graph = graph()
 
     def run(self):
         logging.info("Starting listener thread")
@@ -74,18 +77,43 @@ class LsRouterListener(threading.Thread):
                 # LSP not received already, update seq num
                 self.routing_table.table[sender][1] = seq_nb
                 # Parse lsp and put it in table
-                # TODO
+                # sender already in routing table and thus, already in the graph
+                
         else:
             # Add entry to routing table
             #TODO What to do here ??
             # Parse lsp and put it in table
-            # TODO
-            pass
+            #sender not in routing table and thus, not in graph
+            self.graph.add_node(sender)
+
+        
+        changed = self.add_edges(token)
+        if changed:
+            self.routing_table.table = get_next_step(graph, self.self.routing_table.router_name)
         
         # Send ack to sender
         self.buffer.add_send([Type.LSACK, sender, seq_nb])
         # Forward to neighboors
         self.buffer.add_send(tokens)
+
+
+    def add_edges(self, tokens):
+        sender = tokens[1]
+        changed = False
+        i = 3
+        while i < len(tokens):
+            #The edge is already in the graph
+            if self.graph.has_edge((sender, tokens[i])):
+                #The edge weight is the same as known in the graph
+                if self.graph.edge_weight((sender, tokens[i])) != token[i+1]:
+                    self.graph.set_edge_weight(self, (sender, tokens[i]), token[i+1])
+                    changed = True
+            else:
+                self.graph.add_edge((sender, tokens[i]),token[i+1])
+                changed = True
+            i += 2
+        return changed
+
 
     def handle_ack(self, tokens, addr):
         if len(tokens) < 3:

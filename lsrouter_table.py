@@ -8,6 +8,7 @@ class LsRouterTable:
     table = {} # routing table : [Host: [via, last_lsp_seq_nb]]
     update_timestamp = 0 # timestamp of the routing table
     lsp_timestamp = 0
+    
 
     def add_entry(self, dest, via):
         self.table[dest] = [via,-1]
