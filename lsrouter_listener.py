@@ -14,7 +14,7 @@ class LsRouterListener(threading.Thread):
         self.routing_table = routing_table
         self.buffer = buffer
         self.listen = True
-        self.graph = self.create_graph()
+        self.routing_table.graph = self.create_graph()
 
 
     def create_graph(self):
@@ -97,12 +97,12 @@ class LsRouterListener(threading.Thread):
             #sender not in routing table and thus, not in graph
             self.routing_table.seq[sender] = seq_nb
             if sender not in self.routing_table.table:
-                self.graph.add_node(sender)
+                self.routing_table.graph.add_node(sender)
 
         
         changed = self.add_edges(tokens)
         if changed:
-            self.routing_table.table = get_next_step(self.graph, self.routing_table.router_name)
+            self.routing_table.table = get_next_step(self.routing_table.graph, self.routing_table.router_name)
         
         # Send ack to sender
         self.buffer.add_send([Type.LSACK, sender, seq_nb])
@@ -119,15 +119,15 @@ class LsRouterListener(threading.Thread):
         i = 3
         while i < (len(tokens) - 1):
             #The edge is already in the graph
-            if self.graph.has_edge((sender, tokens[i])):
+            if self.routing_table.graph.has_edge((sender, tokens[i])):
                 #The edge weight is the same as known in the graph
-                if self.graph.edge_weight((sender, tokens[i])) != (tokens[i+1]):
-                    self.graph.set_edge_weight((sender, tokens[i]), int(tokens[i+1]))
+                if self.routing_table.graph.edge_weight((sender, tokens[i])) != (tokens[i+1]):
+                    self.routing_table.graph.set_edge_weight((sender, tokens[i]), int(tokens[i+1]))
                     changed = True
             else:
-                if not self.graph.has_node(tokens[i]):
-                    self.graph.add_node(tokens[i])
-                self.graph.add_edge((sender, tokens[i]), int(tokens[i+1]))
+                if not self.routing_table.graph.has_node(tokens[i]):
+                    self.routing_table.graph.add_node(tokens[i])
+                self.routing_table.graph.add_edge((sender, tokens[i]), int(tokens[i+1]))
                 changed = True
             i += 2
         return changed
