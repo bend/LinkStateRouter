@@ -1,6 +1,7 @@
 from graph import graph
 
-def shortest_path(graph, sourceNode):
+
+def shortest_path(graph, sourceNode, dist = {}, previous = {}):
     """
     Return the shortest path distance between sourceNode and all other nodes
     using Dijkstra's algorithm.  See
@@ -26,8 +27,8 @@ def shortest_path(graph, sourceNode):
     # dist and previous are dictionnaries where the key is the node and 
     # the value is respectively the distance and the previous node.
     
-    dist = {}
-    previous = {}
+#    dist = {}
+#    previous = {}
     
     for v in vertices:
         dist[v] = float('inf')
@@ -57,4 +58,41 @@ def shortest_path(graph, sourceNode):
                 previous[v] = u ;
     
     return dist;
+
+def get_next_step(graph, sourceNode):
+    ''' Returns a dictionnary with a key for each vertex in the graph (except sourceNode)
+        and as value the next step form sourceNode in order to reach the key 
+        by the smallest path.
+    '''
+    dist = {}
+    previous = {}
+    shortest_path(graph, sourceNode, dist, previous)
+    
+    result = {}
+    vertices = graph.nodes()
+    vertices.remove(sourceNode)
+    
+    dist.pop(sourceNode)
+    
+    while dist:
+        value = 0
+        nextkey = None
+        for key in dist:
+            if dist[key] > value:
+                value = dist[key]
+                nextkey = key
+    
+        treated = []
+        while previous[nextkey] != sourceNode:
+            treated += [nextkey]
+            nextkey = previous[nextkey]
+        
+        for node in treated:
+            result[node] = nextkey
+            dist.pop(node)
+        result[nextkey] = nextkey
+        dist.pop(nextkey)
+        
+    return result
+            
     
