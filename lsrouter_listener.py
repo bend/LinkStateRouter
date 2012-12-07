@@ -24,6 +24,8 @@ class LsRouterListener(threading.Thread):
             newgraph.add_node(key)
             newgraph.add_edge((self.routing_table.router_name, key), \
                             int(self.routing_table.neighbours[key][2]))
+        self.routing_table.table = get_next_step(newgraph, \
+                                                 self.routing_table.router_name)
         return newgraph
     
 
@@ -52,6 +54,12 @@ class LsRouterListener(threading.Thread):
                         # Link is now active
                         logging.info("New active link "+sender)
                         self.routing_table.neighbours[sender][4] = True
+                        if not self.routing_table.graph.has_node(sender):
+                            self.routing_table.graph.add_node(sender)
+                        self.routing_table.graph.add_edge((self.routing_table.router_name, sender), \
+                                          int(self.routing_table.neighbours[sender][2]))
+                        self.routing_table.table = get_next_step(self.routing_table.graph, \
+                                                                 self.routing_table.router_name)
                         # TODO UPDATE GRAPH 
                 else:
                     logging.error("Received HELLO from unknown")
@@ -106,8 +114,10 @@ class LsRouterListener(threading.Thread):
                 self.routing_table.graph.add_node(sender)
 
         changed = self.add_edges(tokens)
+        print('changed ', changed)
         if changed:
-            self.routing_table.table = get_next_step(self.routing_table.graph, self.routing_table.router_name)
+            self.routing_table.table = get_next_step(self.routing_table.graph, \
+                                                     self.routing_table.router_name)
         # Send ack to sender
         self.buffer.add_send([Type.LSACK, sender, seq_nb])
         # Forward to neighboors (LSP Packet)
@@ -124,8 +134,8 @@ class LsRouterListener(threading.Thread):
         while i < (len(tokens) - 1):
             #The edge is already in the graph
             if self.routing_table.graph.has_edge((sender, tokens[i])):
-                #The edge weight is the same as known in the graph
-                if self.routing_table.graph.edge_weight((sender, tokens[i])) != (tokens[i+1]):
+                #The edge weight isn't the same as known in the graph
+                if not int(self.routing_table.graph.edge_weight((sender, tokens[i]))) == int(tokens[i+1]):
                     self.routing_table.graph.set_edge_weight((sender, tokens[i]), int(tokens[i+1]))
                     changed = True
             else:
@@ -134,6 +144,7 @@ class LsRouterListener(threading.Thread):
                 self.routing_table.graph.add_edge((sender, tokens[i]), int(tokens[i+1]))
                 changed = True
             i += 2
+            
         return changed
 
 

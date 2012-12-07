@@ -2,6 +2,8 @@ import threading
 import time
 import logging
 import math
+from graph import graph
+from dijkstra import *
 
 class LsRouterHello(threading.Thread):
 
@@ -29,6 +31,17 @@ class LsRouterHello(threading.Thread):
                         # Link is dead
                         value[4] = False
                         logging.warning("Link "+key+" is inactive")
+                        self.routing_table.graph.del_edge((self.routing_table.router_name, key))
+                        if not self.routing_table.graph.neighbors(key):
+                            self.routing_table.graph.del_node(key)
+                        print(self.routing_table.graph)
+                        
+                        if self.routing_table.graph.neighbors(self.routing_table.router_name):
+                            self.routing_table.table = get_next_step(self.routing_table.graph, \
+                                                                 self.routing_table.router_name)
+                        else:
+                            self.routing_table.table = {}
+                        # TODO remove the edge from the graph and recompute the shortest path
                         # Send LSP to neighbours because new dead link detected
                         self.send_lsp()
                     if last_hello_timestamp < time.time() - self.hello_interval:
