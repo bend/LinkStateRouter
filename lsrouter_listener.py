@@ -32,14 +32,14 @@ class LsRouterListener(threading.Thread):
     def run(self):
         logging.info("Starting listener thread")
         while self.listen:
-            data,addr = self.router_socket.recvfrom(1024)
+            data,addr = self.router_socket.recvfrom(4096)
             if not data:
                 logging.error("Error packet received from ", addr)
             else:
                 self.package_handling(data, addr)
 
     def package_handling(self, packet, addr):
-        packet = packet.decode('UTF-8')
+        packet = packet.decode('ASCII')
         tokens = packet.split(' ')
         if tokens[0] == Type.HELLO:
             logging.debug("Received HELLO packet from " + tokens[1])

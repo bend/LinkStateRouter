@@ -35,7 +35,7 @@ class LsRouterSender(threading.Thread):
         if sender in self.routing_table.neighbours:
             neighbour = self.routing_table.neighbours[sender]
             addr = (neighbour[0], int(neighbour[1]))
-            tosend = tosend.encode('UTF-8')
+            tosend = tosend.encode('ASCII')
             self.router_socket.sendto(tosend,addr)
             logging.debug("LSACK sent to "+sender+" seq# "+seq_nb)
         else:
@@ -45,7 +45,7 @@ class LsRouterSender(threading.Thread):
         """ Forwards lsp to all neighbours"""
         tosend = " "
         tosend=tosend.join(tokens)
-        tosend = tosend.encode('UTF-8')
+        tosend = tosend.encode('ASCII')
         for key,value in self.routing_table.neighbours.items():
             if value[4]:
                 addr = (value[0], int(value[1]))
@@ -60,7 +60,7 @@ class LsRouterSender(threading.Thread):
             if via in self.routing_table.neighbours:
                 neighbour = self.routing_table.neighbours[via]
                 addr = (neighbour[0], int(neighbour[1]))
-                tosend = tosend.encode('UTF-8')
+                tosend = tosend.encode('ASCII')
                 self.router_socket.sendto(tosend, addr)
             else:
                 logging.error("Via is not a neighbour "+via)

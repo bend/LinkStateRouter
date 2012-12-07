@@ -65,7 +65,7 @@ class LsRouterHello(threading.Thread):
     def send_hello(self, sender, receiver,addr):
         logging.debug("Sending HELLO to "+receiver)
         msg = 'HELLO '+sender+' '+receiver
-        msg = msg.encode('UTF-8')
+        msg = msg.encode('ASCII')
         self.router_socket.sendto(msg,addr)
 
     def send_lsp_one(self, receiver):
@@ -78,7 +78,7 @@ class LsRouterHello(threading.Thread):
             if value[4]:
                 msg+=key+' '+value[2]+' '
 
-        msg = msg.encode('UTF-8')
+        msg = msg.encode('ASCII')
         
         value = neighbours_table[receiver]
         if value[4]:
@@ -101,7 +101,7 @@ class LsRouterHello(threading.Thread):
             if value[4]:
                 msg+=key+' '+value[2]+' '
 
-        msg = msg.encode('UTF-8')
+        msg = msg.encode('ASCII')
         
         for key,value in neighbours_table.items():
             if value[4]:
