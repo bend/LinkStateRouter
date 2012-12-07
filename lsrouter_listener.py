@@ -27,9 +27,9 @@ class LsRouterListener(threading.Thread):
         self.routing_table.table = get_next_step(newgraph, \
                                                  self.routing_table.router_name)
         return newgraph
-    
 
     def run(self):
+        """ Listens and received packets from network"""
         logging.info("Starting listener thread")
         while self.listen:
             data,addr = self.router_socket.recvfrom(4096)
@@ -39,6 +39,7 @@ class LsRouterListener(threading.Thread):
                 self.package_handling(data, addr)
 
     def package_handling(self, packet, addr):
+        """ Handles the received packets based on the type"""
         packet = packet.decode('ASCII')
         tokens = packet.split(' ')
         if tokens[0] == Type.HELLO:
@@ -86,6 +87,8 @@ class LsRouterListener(threading.Thread):
 
 
     def handle_lsp(self, tokens):
+        """ Handle LSP packets. Discard if already received, 
+        update routing table and forward if not already received"""
         sender = tokens[1]
         seq_nb = tokens[2]
         # Keep track of seq to avoid multiple receive and send of lsack
@@ -157,7 +160,7 @@ class LsRouterListener(threading.Thread):
         # Find associated HOST with IP
         sender = None
         for key, value in self.routing_table.neighbours.items():
-            if value[0] == addr[0] and value[1] == str(addr[1]):
+            if value[Field.HOST] == addr[0] and value[Field.PORT] == str(addr[1]):
                 sender = key
         if sender is None:
             logging.error("LSACK Sender not found "+addr[0]+":"+str(addr[1]))

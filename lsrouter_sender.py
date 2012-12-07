@@ -14,14 +14,16 @@ class LsRouterSender(threading.Thread):
         self.buffer = buffer
 
     def run(self):
+        """ Reads data from the buffer and send it over the network"""
         logging.info("Starting Sender thread.")
         routing_table = self.routing_table.neighbours
         router_name = self.routing_table.router_name
         while(self.send):
-            tosend = self.buffer.pop_send()
+            tosend = self.buffer.pop_send() # Blocking call if no elements in Buffer
             self.handle_send(tosend)
 
     def handle_send(self, tokens):
+        """ Handle the sending of different tokens"""
         if tokens[0] == Type.DATA:
             self.send_data(tokens[1], tokens[2], tokens[3])
         elif tokens[0] == Type.LSACK:
@@ -34,7 +36,7 @@ class LsRouterSender(threading.Thread):
         tosend = 'LSACK '+ sender + ' '+seq_nb
         if sender in self.routing_table.neighbours:
             neighbour = self.routing_table.neighbours[sender]
-            addr = (neighbour[0], int(neighbour[1]))
+            addr = (neighbour[Field.HOST], int(neighbour[Field.PORT]))
             tosend = tosend.encode('ASCII')
             self.router_socket.sendto(tosend,addr)
             logging.debug("LSACK sent to "+sender+" seq# "+seq_nb)
@@ -47,19 +49,20 @@ class LsRouterSender(threading.Thread):
         tosend=tosend.join(tokens)
         tosend = tosend.encode('ASCII')
         for key,value in self.routing_table.neighbours.items():
-            if value[4]:
-                addr = (value[0], int(value[1]))
+            if value[Field.Active]:
+                addr = (value[Field.HOST], int(value[Field.PORT]))
                 self.router_socket.sendto(tosend,addr)
                 logging.debug("LSP sent. seq#: "+tokens[2])
 
     def send_data(self, sender, receiver, msg):
+        """ Forward DATA packets"""
         tosend = 'DATA '+sender+' '+receiver+' '+msg
         if receiver in self.routing_table.table:
             # Get addr
             via = self.routing_table.table[receiver]
             if via in self.routing_table.neighbours:
                 neighbour = self.routing_table.neighbours[via]
-                addr = (neighbour[0], int(neighbour[1]))
+                addr = (neighbour[Field.HOST], int(neighbour[Field.PORT]))
                 tosend = tosend.encode('ASCII')
                 self.router_socket.sendto(tosend, addr)
             else:

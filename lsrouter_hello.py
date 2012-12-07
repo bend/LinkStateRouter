@@ -2,6 +2,7 @@ import threading
 import time
 import logging
 import math
+from type import *
 from graph import graph
 from dijkstra import *
 
@@ -19,6 +20,10 @@ class LsRouterHello(threading.Thread):
 
 
     def run(self):
+        """ Sends regular HELLO and LSP packets
+            Detects the dead links
+            Resends a LSP Packet if not acked
+        """
         logging.info("Starting HELLO thread. Interval "+str(self.hello_interval))
         routing_table = self.routing_table.neighbours
         router_name = self.routing_table.router_name
@@ -26,16 +31,15 @@ class LsRouterHello(threading.Thread):
         hello_update = False
         while(self.send):
             for key, value in routing_table.items():
-                if value[4]:
-                    if value[3] < time.time() - self.hello_interval*3:
+                if value[Field.ACTIVE]:
+                    if value[Field.TSH] < time.time() - self.hello_interval*3:
                         # Link is dead
-                        value[4] = False
+                        value[Field.Active] = False
                         logging.warning("Link "+key+" is inactive")
                         self.routing_table.graph.del_edge((self.routing_table.router_name, key))
                         if not self.routing_table.graph.neighbors(key):
                             self.routing_table.graph.del_node(key)
                         print(self.routing_table.graph)
-                        
                         if self.routing_table.graph.neighbors(self.routing_table.router_name):
                             self.routing_table.table = get_next_step(self.routing_table.graph, \
                                                                  self.routing_table.router_name)
@@ -48,7 +52,7 @@ class LsRouterHello(threading.Thread):
                         # Send HELLO because timeout
                         self.send_hello(router_name, key, (value[0], int(value[1])))
                         hello_update = True
-                    if not value[5] and value[6]<time.time() - 5:
+                    if not value[Field.ACKR] and value[Field.TLSP]<time.time() - 5:
                         # LSP not acked within the 5 sec. Resend it
                         self.send_lsp_one(key)
 
@@ -63,53 +67,51 @@ class LsRouterHello(threading.Thread):
             time.sleep(1)
     
     def send_hello(self, sender, receiver,addr):
+        """ Sends HELLO Packet to addr"""
         logging.debug("Sending HELLO to "+receiver)
         msg = 'HELLO '+sender+' '+receiver
         msg = msg.encode('ASCII')
         self.router_socket.sendto(msg,addr)
 
     def send_lsp_one(self, receiver):
-        """ Send LSP to only one sender"""
+        """ Send LSP to only one receiver"""
         sender = self.routing_table.router_name
         msg = 'LSP '+sender+' '+str(self.seq_nb)+' '
         neighbours_table = self.routing_table.neighbours
         # Build LSP Packet
         for key, value in neighbours_table.items():
-            if value[4]:
-                msg+=key+' '+value[2]+' '
+            if value[Field.ACTIVE]:
+                msg+=key+' '+value[Field.COST]+' '
 
         msg = msg.encode('ASCII')
-        
         value = neighbours_table[receiver]
-        if value[4]:
+        if value[Field.ACTIVE]:
             neighbours_table[receiver][5] = False # Ack not received for this lsp
             logging.debug("Re-sending LSP to "+key+" seq # "+str(self.seq_nb))
-            self.router_socket.sendto(msg,(value[0], int(value[1])))
+            self.router_socket.sendto(msg,(value[Field.HOST], int(value[Field.PORT])))
         self.routing_table.lsp_timestamp=time.time() #send time of the lsp
-        value[6] = time.time()
-        value[7] = self.seq_nb
+        value[Field.TLSP] = time.time()
+        value[Field.LSPNB] = self.seq_nb
         self.seq_nb= (self.seq_nb+1)%100
 
-
-
     def send_lsp(self):
+        """ Sends LSP to all neighbours"""
         sender = self.routing_table.router_name
         msg = 'LSP '+sender+' '+str(self.seq_nb)+' '
         neighbours_table = self.routing_table.neighbours
         # Build LSP Packet
         for key, value in neighbours_table.items():
-            if value[4]:
+            if value[Field.ACTIVE]:
                 msg+=key+' '+value[2]+' '
-
         msg = msg.encode('ASCII')
         
         for key,value in neighbours_table.items():
-            if value[4]:
+            if value[Field.ACTIVE]:
                 neighbours_table[key][5] = False # Ack not received for this lsp
                 logging.debug("Sending LSP to "+key+" seq # "+str(self.seq_nb))
                 self.router_socket.sendto(msg,(value[0], int(value[1])))
-                neighbours_table[key][6] = time.time()
-                neighbours_table[key][7] = self.seq_nb
+                value[Field.TLSP] = time.time()
+                value[Field.LSPNB] = self.seq_nb
         self.routing_table.lsp_timestamp=time.time() #send time of the lsp
         self.seq_nb= (self.seq_nb+1)%100
 

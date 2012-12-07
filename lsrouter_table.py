@@ -1,5 +1,6 @@
 import logging
 import time
+from type import *
 
 
 class LsRouterTable:
@@ -53,7 +54,6 @@ class LsRouterTable:
                     self.neighbours[split_line[0]].append(-1) #lsp seq #?
 
                     self.add_entry(split_line[0], split_line[0])
-
             i+=1
         f.close()
 
