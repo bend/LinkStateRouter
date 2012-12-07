@@ -3,7 +3,7 @@ import logging
 import time
 from graph import graph
 from dijkstra import *
-from type import Type
+from type import *
 
 
 class LsRouterListener(threading.Thread):
@@ -109,7 +109,6 @@ class LsRouterListener(threading.Thread):
                 # sender already in routing table and thus, already in the graph
         else:
             # Add entry to routing table
-            #TODO What to do here ??
             # Parse lsp and put it in table
             #sender not in routing table and thus, not in graph
             self.routing_table.seq[sender] = seq_nb
@@ -125,9 +124,6 @@ class LsRouterListener(threading.Thread):
         self.buffer.add_send([Type.LSACK, sender, seq_nb])
         # Forward to neighboors (LSP Packet)
         self.buffer.add_send(tokens)
-        #print(self.routing_table.table)
-        #print(self.graph)
-        #print(self.routing_table.neighbours)
 
 
     def add_edges(self, tokens):

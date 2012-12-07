@@ -33,42 +33,52 @@ class LsRouterSender(threading.Thread):
 
     def send_lsack(self, sender, seq_nb):
         """ Send LSACK to the sender of the LSP """
-        tosend = 'LSACK '+ sender + ' '+seq_nb
-        if sender in self.routing_table.neighbours:
-            neighbour = self.routing_table.neighbours[sender]
-            addr = (neighbour[Field.HOST], int(neighbour[Field.PORT]))
-            tosend = tosend.encode('ASCII')
-            self.router_socket.sendto(tosend,addr)
-            logging.debug("LSACK sent to "+sender+" seq# "+seq_nb)
-        else:
-            logging.error("Unintended LSP received from "+sender," seq#: "+ seq_nb)
+        try:
+            tosend = 'LSACK '+ sender + ' '+seq_nb
+            if sender in self.routing_table.neighbours:
+                neighbour = self.routing_table.neighbours[sender]
+                addr = (neighbour[Field.HOST], int(neighbour[Field.PORT]))
+                tosend = tosend.encode('ASCII')
+                self.router_socket.sendto(tosend,addr)
+                logging.debug("LSACK sent to "+sender+" seq# "+seq_nb)
+            else:
+                logging.error("Unintended LSP received from "+sender," seq#: "+ seq_nb)
+        except socket.error:
+            logging.error("Could not send, socket error")
 
     def send_lsp(self, tokens):
         """ Forwards lsp to all neighbours"""
-        tosend = " "
-        tosend=tosend.join(tokens)
-        tosend = tosend.encode('ASCII')
-        for key,value in self.routing_table.neighbours.items():
-            if value[Field.Active]:
-                addr = (value[Field.HOST], int(value[Field.PORT]))
-                self.router_socket.sendto(tosend,addr)
-                logging.debug("LSP sent. seq#: "+tokens[2])
+        try:
+            tosend = " "
+            tosend=tosend.join(tokens)
+            tosend = tosend.encode('ASCII')
+            for key,value in self.routing_table.neighbours.items():
+                if value[Field.ACTIVE]:
+                    addr = (value[Field.HOST], int(value[Field.PORT]))
+                    self.router_socket.sendto(tosend,addr)
+                    logging.debug("LSP sent. seq#: "+tokens[2])
+        except socket.error:
+            logging.error("Could not send, socket error")
+        
 
     def send_data(self, sender, receiver, msg):
         """ Forward DATA packets"""
-        tosend = 'DATA '+sender+' '+receiver+' '+msg
-        if receiver in self.routing_table.table:
-            # Get addr
-            via = self.routing_table.table[receiver]
-            if via in self.routing_table.neighbours:
-                neighbour = self.routing_table.neighbours[via]
-                addr = (neighbour[Field.HOST], int(neighbour[Field.PORT]))
-                tosend = tosend.encode('ASCII')
-                self.router_socket.sendto(tosend, addr)
+        try:
+            tosend = 'DATA '+sender+' '+receiver+' '+msg
+            if receiver in self.routing_table.table:
+                # Get addr
+                via = self.routing_table.table[receiver]
+                if via in self.routing_table.neighbours:
+                    neighbour = self.routing_table.neighbours[via]
+                    addr = (neighbour[Field.HOST], int(neighbour[Field.PORT]))
+                    tosend = tosend.encode('ASCII')
+                    self.router_socket.sendto(tosend, addr)
+                else:
+                    logging.error("Via is not a neighbour "+via)
             else:
-                logging.error("Via is not a neighbour "+via)
-        else:
-            logging.error("Unknown host "+receiver)
+                logging.error("Unknown host "+receiver)
+        except socket.error:
+            logging.error("Could not send, socket error")
 
 
 
