@@ -40,6 +40,7 @@ class LsRouterListener(threading.Thread):
                 self.package_handling(data, addr)
 
     def package_handling(self, packet, addr):
+        print(addr)
         """ Handles the received packets based on the type"""
         packet = packet.decode('ASCII')
         tokens = packet.split(' ')
