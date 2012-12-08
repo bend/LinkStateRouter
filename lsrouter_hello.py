@@ -36,16 +36,18 @@ class LsRouterHello(threading.Thread):
                         # Link is dead
                         value[Field.ACTIVE] = False
                         logging.warning("Link "+key+" is inactive")
-                        self.routing_table.graph.del_edge((self.routing_table.router_name, key))
+                        if not self.routing_table.graph.has_edge((self.routing_table.router_name, key)):
+                            self.routing_table.graph.del_edge((self.routing_table.router_name, key))
 #                        if not self.routing_table.graph.neighbors(key):
 #                            self.routing_table.graph.del_node(key)
 #                        print(self.routing_table.graph)
-                        if self.routing_table.graph.neighbors(self.routing_table.router_name):
-                            self.routing_table.table = get_next_step(self.routing_table.graph, \
+                        #TODO enlever le cas ou source est isolé
+                        #if self.routing_table.graph.neighbors(self.routing_table.router_name):
+                        self.routing_table.table = get_next_step(self.routing_table.graph, \
                                                                  self.routing_table.router_name)
-                            self.routing_table.update()
-                        else:
-                            self.routing_table.table = {}
+                        self.routing_table.update()
+                        #else:
+                        #    self.routing_table.table = {}
                         # Send LSP to neighbours because new dead link detected
                         self.send_lsp()
                     if last_hello_timestamp < time.time() - self.hello_interval:
