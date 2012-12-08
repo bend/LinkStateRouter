@@ -58,7 +58,8 @@ class LsRouterListener(threading.Thread):
                         self.routing_table.neighbours[sender][4] = True
                         if not self.routing_table.graph.has_node(sender):
                             self.routing_table.graph.add_node(sender)
-                        self.routing_table.graph.add_edge((self.routing_table.router_name, sender), \
+                        if not self.routing_table.graph.has_edge((self.routing_table.router_name, sender)):
+                            self.routing_table.graph.add_edge((self.routing_table.router_name, sender), \
                                           int(self.routing_table.neighbours[sender][2]))
                         self.routing_table.table = get_next_step(self.routing_table.graph, \
                                                                  self.routing_table.router_name)
