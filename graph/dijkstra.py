@@ -40,7 +40,7 @@ def shortest_path(graph, sourceNode, dist = {}, previous = {}):
         temp_dist = float('inf')
         u = None
         for node in vertices:
-            if dist[node] < temp_dist:
+            if dist[node] <= temp_dist:
                 temp_dist = dist[node]
                 u = node
         vertices.remove(u)        
@@ -63,7 +63,6 @@ def get_next_step(graph, sourceNode):
         and as value the next step form sourceNode in order to reach the key 
         by the smallest path.
     '''
-    print('get_next_step')
     dist = {}
     previous = {}
     shortest_path(graph, sourceNode, dist, previous)
@@ -71,9 +70,14 @@ def get_next_step(graph, sourceNode):
     result = {}
     vertices = graph.nodes()
     vertices.remove(sourceNode)
-    
-    dist.pop(sourceNode)
-    
+    to_pop = []
+    for key in dist:
+        if not previous[key]:
+            to_pop += [key]
+    for key in to_pop:
+        dist.pop(key)
+    #dist.pop(sourceNode)
+
     while dist:
         value = 0
         nextkey = None
@@ -81,8 +85,9 @@ def get_next_step(graph, sourceNode):
             if dist[key] > value:
                 value = dist[key]
                 nextkey = key
-    
+            
         treated = []
+
         while previous[nextkey] != sourceNode:
             treated += [nextkey]
             nextkey = previous[nextkey]
