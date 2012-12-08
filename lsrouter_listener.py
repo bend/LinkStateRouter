@@ -26,6 +26,7 @@ class LsRouterListener(threading.Thread):
                             int(self.routing_table.neighbours[key][2]))
         self.routing_table.table = get_next_step(newgraph, \
                                                  self.routing_table.router_name)
+        self.routing_table.update()
         return newgraph
 
     def run(self):
@@ -61,7 +62,7 @@ class LsRouterListener(threading.Thread):
                                           int(self.routing_table.neighbours[sender][2]))
                         self.routing_table.table = get_next_step(self.routing_table.graph, \
                                                                  self.routing_table.router_name)
-                        # TODO UPDATE GRAPH 
+                        self.routing_table.update()
                 else:
                     logging.error("Received HELLO from unknown")
             else:
@@ -116,10 +117,10 @@ class LsRouterListener(threading.Thread):
                 self.routing_table.graph.add_node(sender)
 
         changed = self.add_edges(tokens)
-        print('changed ', changed)
         if changed:
             self.routing_table.table = get_next_step(self.routing_table.graph, \
                                                      self.routing_table.router_name)
+            self.routing_table.update()
         # Send ack to sender
         self.buffer.add_send([Type.LSACK, sender, seq_nb])
         # Forward to neighboors (LSP Packet)

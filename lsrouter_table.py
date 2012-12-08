@@ -58,11 +58,11 @@ class LsRouterTable:
         f.close()
 
 
-        def remove_entry(self, dest):
-            self.table.pop(dest)
+    def remove_entry(self, dest):
+        self.table.pop(dest)
 
-        def update(self):
-            #Will update the table
-            # TODO this should be called after updating the table
-            self.update_timestamp = time.time()
+    def update(self):
+        #Will update the table
+        # TODO this should be called after updating the table
+        self.update_timestamp = time.time()
 

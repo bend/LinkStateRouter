@@ -37,12 +37,13 @@ class LsRouterHello(threading.Thread):
                         value[Field.ACTIVE] = False
                         logging.warning("Link "+key+" is inactive")
                         self.routing_table.graph.del_edge((self.routing_table.router_name, key))
-                        if not self.routing_table.graph.neighbors(key):
-                            self.routing_table.graph.del_node(key)
-                        print(self.routing_table.graph)
+#                        if not self.routing_table.graph.neighbors(key):
+#                            self.routing_table.graph.del_node(key)
+#                        print(self.routing_table.graph)
                         if self.routing_table.graph.neighbors(self.routing_table.router_name):
                             self.routing_table.table = get_next_step(self.routing_table.graph, \
                                                                  self.routing_table.router_name)
+                            self.routing_table.update()
                         else:
                             self.routing_table.table = {}
                         # TODO remove the edge from the graph and recompute the shortest path
