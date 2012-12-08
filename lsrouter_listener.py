@@ -164,7 +164,7 @@ class LsRouterListener(threading.Thread):
             return
 
         # Check if ACK nb is valid
-        if int(tokens[2]) != self.routing_table.neighbours[sender][7]:
+        if int(tokens[2]) != int(self.routing_table.neighbours[sender][7]):
             # LSP Already aknowledged
             logging.debug("LSACK already acknowledged seq# "+tokens[2])
             return

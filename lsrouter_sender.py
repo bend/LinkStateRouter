@@ -30,6 +30,10 @@ class LsRouterSender(threading.Thread):
             self.send_lsack(tokens[1], tokens[2])
         elif tokens[0] == Type.LSP:
             self.send_lsp(tokens)
+        elif tokens[0] == Type.LSP_ONE:
+            self.send_lsp_one(tokens)
+        elif tokens[0] == Type.HELLO:
+            self.send_hello(tokens)
 
     def send_lsack(self, sender, seq_nb):
         """ Send LSACK to the sender of the LSP """
@@ -56,7 +60,26 @@ class LsRouterSender(threading.Thread):
                 if value[Field.ACTIVE]:
                     addr = (value[Field.HOST], int(value[Field.PORT]))
                     self.router_socket.sendto(tosend,addr)
-                    logging.debug("LSP sent. seq#: "+tokens[2])
+                    logging.debug("LSP sent. seq#: "+tokens[2]+" to "+key)
+                    value[Field.TLSP] = time.time()
+                    value[Field.LSPNB] = tokens[2]
+            self.routing_table.lsp_timestamp=time.time() #send time of the lsp
+        except socket.error:
+            logging.error("Could not send, socket error")
+    
+    def send_lsp_one(self, tokens):
+        """ Send LSP to one neighbour """
+        try:
+            tosend = " "
+            tosend=tosend.join(tokens[2:]) # Don't take the 2 first fields
+            tosend = tosend.encode('ASCII')
+            value = self.routing_table.neighbours[tokens[1]]
+            addr = (value[Field.HOST], int(value[Field.PORT]))
+            self.router_socket.sendto(tosend,addr)
+            logging.debug("LSP resent. seq#: "+tokens[4]+" to "+tokens[1])
+            value[Field.TLSP] = time.time()
+            value[Field.LSPNB] = tokens[4]
+            self.routing_table.lsp_timestamp=time.time() #send time of the lsp
         except socket.error:
             logging.error("Could not send, socket error")
         
@@ -79,6 +102,21 @@ class LsRouterSender(threading.Thread):
                 logging.error("Unknown host "+receiver)
         except socket.error:
             logging.error("Could not send, socket error")
+
+    def send_hello(self, tokens):
+        """ Sends the hello packet"""
+        try:
+            addr=tokens[3]
+            """ Sends HELLO Packet to addr"""
+            logging.debug("Sending HELLO to "+tokens[2])
+            tosend = " "
+            tosend = tosend.join(tokens[0:3])
+            tosend = tosend.encode('ASCII')
+            # Add LSP to send buffer
+            self.router_socket.sendto(tosend,addr)
+        except socket.error:
+            logging.error("Could not send, socket error")
+
 
 
 

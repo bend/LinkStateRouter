@@ -4,6 +4,7 @@ class Type:
     '''
     HELLO = "HELLO"
     LSP   = "LSP"
+    LSP_ONE   = "LSP_ONE"
     LSACK = "LSACK"
     DATA  = "DATA"
 
