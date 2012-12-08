@@ -27,7 +27,7 @@ class LsRouterSender(threading.Thread):
         if tokens[0] == Type.DATA:
             self.send_data(tokens[1], tokens[2], tokens[3])
         elif tokens[0] == Type.LSACK:
-            self.send_lsack(tokens[1], tokens[2])
+            self.send_lsack(tokens)
         elif tokens[0] == Type.LSP:
             self.send_lsp(tokens)
         elif tokens[0] == Type.LSP_ONE:
@@ -35,18 +35,15 @@ class LsRouterSender(threading.Thread):
         elif tokens[0] == Type.HELLO:
             self.send_hello(tokens)
 
-    def send_lsack(self, sender, seq_nb):
+    def send_lsack(self, tokens):
         """ Send LSACK to the sender of the LSP """
         try:
-            tosend = 'LSACK '+ sender + ' '+seq_nb
-            if sender in self.routing_table.neighbours:
-                neighbour = self.routing_table.neighbours[sender]
-                addr = (neighbour[Field.HOST], int(neighbour[Field.PORT]))
-                tosend = tosend.encode('ASCII')
-                self.router_socket.sendto(tosend,addr)
-                logging.debug("LSACK sent to "+sender+" seq# "+seq_nb)
-            else:
-                logging.error("Unintended LSP received from "+sender," seq#: "+ seq_nb)
+            tosend = " "
+            tosend = tosend.join(tokens[0:3])
+            addr = tokens[3]
+            tosend = tosend.encode('ASCII')
+            self.router_socket.sendto(tosend,addr)
+            logging.debug("LSACK sent seq# "+str(tokens[2]))
         except socket.error:
             logging.error("Could not send, socket error")
 

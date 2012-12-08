@@ -69,7 +69,7 @@ class LsRouterListener(threading.Thread):
             else:
                 logging.warning("Received HELLO not intended to router")
         elif tokens[0] == Type.LSP:
-            self.handle_lsp(tokens)
+            self.handle_lsp(tokens,addr)
         elif tokens[0] == Type.LSACK:
             self.handle_ack(tokens, addr)
         elif tokens[0] == Type.DATA:
@@ -86,9 +86,10 @@ class LsRouterListener(threading.Thread):
                 self.buffer.add_send([Type.DATA,sender, receiver, msg]) 
         else:
             logging.error("Invalid packet received")
+            print(tokens)
 
 
-    def handle_lsp(self, tokens):
+    def handle_lsp(self, tokens, addr):
         """ Handle LSP packets. Discard if already received, 
         update routing table and forward if not already received"""
         sender = tokens[1]
@@ -96,13 +97,14 @@ class LsRouterListener(threading.Thread):
         # Keep track of seq to avoid multiple receive and send of lsack
         if sender == self.routing_table.router_name:
             # Skip forwarded packet that was initited by this router
-            logging.debug("Skipping LSP initiatest by us "+seq_nb)
+            logging.debug("Skipping LSP initiatest by us "+seq_nb+ " from "+sender)
+            self.buffer.add_send([Type.LSACK, sender, seq_nb, addr])
             return
         if sender in self.routing_table.seq:
             if self.routing_table.seq[sender] == seq_nb:
                 # LSP already received, skip it
                 logging.debug("Skipping already received LSP "+seq_nb)
-                self.buffer.add_send([Type.LSACK, sender, seq_nb])
+                self.buffer.add_send([Type.LSACK, sender, seq_nb,addr])
                 return
             else:
                 old_seq =  self.routing_table.seq[sender]
@@ -114,12 +116,11 @@ class LsRouterListener(threading.Thread):
                     # Check if packet is newer of older
                     if (int(old_seq)+1)%100 <= int(seq_nb) and int(seq_nb) <= (int(old_seq)+51)%100:
                         # Newer
-                        logging.debug("Received a packet that is newer than expected "+seq_nb)
                         logging.debug("Received LSP from "+sender+" seq # "+seq_nb)
                         self.routing_table.seq[sender] = seq_nb
                     else:
                         # Older. Ack it
-                        self.buffer.add_send([Type.LSACK, sender, seq_nb])
+                        self.buffer.add_send([Type.LSACK, sender, seq_nb, addr])
                         return
 
         else:
@@ -136,7 +137,7 @@ class LsRouterListener(threading.Thread):
                                                      self.routing_table.router_name)
             self.routing_table.update()
         # Send ack to sender
-        self.buffer.add_send([Type.LSACK, sender, seq_nb])
+        self.buffer.add_send([Type.LSACK, sender, seq_nb, addr])
         # Forward to neighboors (LSP Packet)
         self.buffer.add_send(tokens)
 
