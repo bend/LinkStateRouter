@@ -35,6 +35,8 @@ class LsRouterHello(threading.Thread):
                     if value[Field.TSH] < time.time() - self.hello_interval*3:
                         # Link is dead
                         value[Field.ACTIVE] = False
+                        # Remove not acked list
+                        value[Field.LSPLIST] = {}
                         logging.warning("Link "+key+" is inactive")
                         if not self.routing_table.graph.has_edge((self.routing_table.router_name, key)):
                             self.routing_table.graph.del_edge((self.routing_table.router_name, key))
