@@ -63,6 +63,6 @@ class LsRouterTable:
 
     def update(self):
         #Will update the table
-        # TODO this should be called after updating the table
+        #this should be called after updating the table
         self.update_timestamp = time.time()
 

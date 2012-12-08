@@ -46,7 +46,6 @@ class LsRouterHello(threading.Thread):
                             self.routing_table.update()
                         else:
                             self.routing_table.table = {}
-                        # TODO remove the edge from the graph and recompute the shortest path
                         # Send LSP to neighbours because new dead link detected
                         self.send_lsp()
                     if last_hello_timestamp < time.time() - self.hello_interval:
