@@ -101,6 +101,7 @@ class LsRouterListener(threading.Thread):
             if self.routing_table.seq[sender] == seq_nb:
                 # LSP already received, skip it
                 logging.debug("Skipping already received LSP")
+                self.buffer.add_send([Type.LSACK, sender, seq_nb])
                 return
             else:
                 # LSP not received already, update seq num
