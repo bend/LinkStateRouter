@@ -105,11 +105,23 @@ class LsRouterListener(threading.Thread):
                 self.buffer.add_send([Type.LSACK, sender, seq_nb])
                 return
             else:
-                # LSP not received already, update seq num
-                logging.debug("Received LSP from "+sender+" seq # "+seq_nb)
-                self.routing_table.seq[sender] = seq_nb
-                # Parse lsp and put it in table
-                # sender already in routing table and thus, already in the graph
+                old_seq =  self.routing_table.seq[sender]
+                if int(seq_nb) == int(old_seq)+1:
+                    # Good Seq received, ack it
+                    logging.debug("Received LSP from "+sender+" seq # "+seq_nb)
+                    self.routing_table.seq[sender] = seq_nb
+                else:
+                    # Check if packet is newer of older
+                    if (int(old_seq)+1)%100 <= int(seq_nb) and int(seq_nb) <= (int(old_seq)+51)%100:
+                        # Newer
+                        logging.debug("Received a packet that is newer than expected "+seq_nb)
+                        logging.debug("Received LSP from "+sender+" seq # "+seq_nb)
+                        self.routing_table.seq[sender] = seq_nb
+                    else:
+                        # Older. Ack it
+                        self.buffer.add_send([Type.LSACK, sender, seq_nb])
+                        return
+
         else:
             # Add entry to routing table
             # Parse lsp and put it in table
