@@ -52,9 +52,12 @@ class LsRouterHello(threading.Thread):
                         # Send HELLO because timeout
                         self.send_hello(router_name, key, (value[0], int(value[1])))
                         hello_update = True
-                    if not value[Field.ACKR] and value[Field.TLSP]<time.time() - 5:
-                        # LSP not acked within the 5 sec. Resend it
-                        self.send_lsp_one(key)
+                        # Browse all LSP that are not acked for this user and check is timout expired (5s)                       
+                        lsp_no_acked = value[Field.LSPLIST]
+                        for lspseq, lsp_to in lsp_no_acked.items():
+                            if lsp_to[0] < time.time() - 5:
+                                # LSP not acket in more than 5 sec
+                                self.send_lsp_one(key, lsp_to[1])
 
             # Update timestamp
             if hello_update:
@@ -67,31 +70,21 @@ class LsRouterHello(threading.Thread):
             time.sleep(1)
     
     def send_hello(self, sender, receiver,addr):
-            """ Sends HELLO Packet to addr"""
-            msg = 'HELLO '+sender+' '+receiver
-            tokens = msg.split(' ')
-            tokens.append(addr)
-            # Add LSP to send buffer
-            self.buffer.add_send(tokens)
+        """ Sends HELLO Packet to addr"""
+        msg = 'HELLO '+sender+' '+receiver
+        tokens = msg.split(' ')
+        tokens.append(addr)
+        # Add LSP to send buffer
+        self.buffer.add_send(tokens)
 
-    def send_lsp_one(self, receiver):
+    def send_lsp_one(self, receiver, lsp):
         """ Send LSP to only one receiver"""
-        sender = self.routing_table.router_name
         tokens = []
         tokens.append(Type.LSP_ONE)
         tokens.append(receiver)
-        tokens.append('LSP')
-        tokens.append(sender)
-        tokens.append(str(self.seq_nb))
-        neighbours_table = self.routing_table.neighbours
-        # Build LSP Packet
-        for key, value in neighbours_table.items():
-            if value[Field.ACTIVE]:
-                tokens.append(key)
-                tokens.append(value[Field.COST])
+        tokens+=lsp
         # Add to the send buffer
         self.buffer.add_send(tokens)
-        self.seq_nb= (self.seq_nb+1)%100
 
     def send_lsp(self):
         """ Sends LSP to all neighbours"""
@@ -104,7 +97,6 @@ class LsRouterHello(threading.Thread):
                 msg+=key+' '+value[2]+' '
 
         self.buffer.add_send(msg.split(' '))
-        self.routing_table.lsp_timestamp=time.time() #send time of the lsp
         self.seq_nb= (self.seq_nb+1)%100
 
 

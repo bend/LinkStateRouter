@@ -23,7 +23,7 @@ class LsRouterTable:
            the router neighbours is accessible by self.neighbours
            The composition of neighbours is a map structured in the 
            following way:
-               [neighbourname1 : [0:host, 1:port, 2:cost, 3:timestamp_hello, 4:active?, 5:ack_received?, 6:timestamp_lsp, 7:lsp_seq_nb], ...
+               [neighbourname1 : [0:host, 1:port, 2:cost, 3:timestamp_hello, 4:active?, 5:lsp_seq_nb:[lsp_timeout,lsp]],...
         """
         f = open(file,'r')
         i = 0
@@ -49,9 +49,7 @@ class LsRouterTable:
                     self.neighbours[split_line[0]] = split_line[1:]
                     self.neighbours[split_line[0]].append(time.time()) #timestamp hello
                     self.neighbours[split_line[0]].append(True) #active
-                    self.neighbours[split_line[0]].append(True) #ack_lsp received?
-                    self.neighbours[split_line[0]].append(time.time()) #lsp timestamp?
-                    self.neighbours[split_line[0]].append(-1) #lsp seq #?
+                    self.neighbours[split_line[0]].append({})
 
                     self.add_entry(split_line[0], split_line[0])
             i+=1

@@ -95,12 +95,12 @@ class LsRouterListener(threading.Thread):
         # Keep track of seq to avoid multiple receive and send of lsack
         if sender == self.routing_table.router_name:
             # Skip forwarded packet that was initited by this router
-            logging.debug("Skipping LSP initiatest by us")
+            logging.debug("Skipping LSP initiatest by us "+seq_nb)
             return
         if sender in self.routing_table.seq:
             if self.routing_table.seq[sender] == seq_nb:
                 # LSP already received, skip it
-                logging.debug("Skipping already received LSP")
+                logging.debug("Skipping already received LSP "+seq_nb)
                 self.buffer.add_send([Type.LSACK, sender, seq_nb])
                 return
             else:
@@ -148,30 +148,26 @@ class LsRouterListener(threading.Thread):
             
         return changed
 
-
     def handle_ack(self, tokens, addr):
         """ Handle received lsack"""
         if len(tokens) < 3:
             logging.error("LSACK packet error")
             return
         receiver = tokens[1]
-        # Find associated HOST with IP
         sender = None
-        for key, value in self.routing_table.neighbours.items():
+        neighbours = self.routing_table.neighbours
+        # Find associated HOST'S IP
+        for key, value in neighbours.items():
             if value[Field.HOST] == addr[0] and value[Field.PORT] == str(addr[1]):
                 sender = key
         if sender is None:
             logging.error("LSACK Sender not found "+addr[0]+":"+str(addr[1]))
             return
-
-        # Check if ACK nb is valid
-        if int(tokens[2]) != int(self.routing_table.neighbours[sender][7]):
-            # LSP Already aknowledged
-            logging.debug("LSACK already acknowledged seq# "+tokens[2])
-            return
-        elif sender in self.routing_table.neighbours:
-            logging.debug("LSACK received from "+sender+" seq # "+tokens[2])
-            self.routing_table.neighbours[sender][5] = True
-        else:
-            logging.error("Received unintended LSACK ")
-
+        # Browse the LSP not acked table for the LSACK sender
+        for lsp_seq, lspo in neighbours[sender][Field.LSPLIST].items():
+            if int(tokens[2]) == int(lsp_seq):
+                # LSP found, remove it from the map
+                del(neighbours[sender][Field.LSPLIST][lsp_seq])
+                logging.debug("LSACK received from "+sender+" seq # "+tokens[2])
+                return
+        logging.debug("Received old or unintended LSACK "+tokens[2])

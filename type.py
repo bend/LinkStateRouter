@@ -14,6 +14,4 @@ class Field:
     COST = 2        # Cost
     TSH = 3         # Timestamp Hello
     ACTIVE = 4      # Active ?
-    ACKR = 5        # Ack received ?
-    TLSP = 6        # Timestamp LSP
-    LSPNB = 7       # LSP number
+    LSPLIST = 5     # List of LSP not acked
