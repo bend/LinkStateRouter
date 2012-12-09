@@ -216,4 +216,4 @@ class LsRouterListener(threading.Thread):
                 msg+=key+' '+value[2]+' '
 
         self.buffer.add_send(msg.split(' '))
-        self.routing_table.seq_nb= (self.routing_table.seq_nb+1)%100
+        self.routing_table.seq_nb = (self.routing_table.seq_nb+1)%100
