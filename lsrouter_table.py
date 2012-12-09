@@ -11,6 +11,7 @@ class LsRouterTable:
     graph = None
     update_timestamp = 0 # timestamp of the routing table
     lsp_timestamp = 0
+    seq_nb = 0  # LSP seq number
     
 
     def add_entry(self, dest, via):

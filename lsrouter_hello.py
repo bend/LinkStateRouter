@@ -16,7 +16,6 @@ class LsRouterHello(threading.Thread):
         self.hello_interval = hello_interval
         self.lsp_interval = lsp_interval
         self.buffer = buffer
-        self.seq_nb = 0
 
 
     def run(self):
@@ -93,7 +92,7 @@ class LsRouterHello(threading.Thread):
     def send_lsp(self):
         """ Sends LSP to all neighbours"""
         sender = self.routing_table.router_name
-        msg = 'LSP '+sender+' '+str(self.seq_nb)+' '
+        msg = 'LSP '+sender+' '+str(self.routing_table.seq_nb)+' '
         neighbours_table = self.routing_table.neighbours
         # Build LSP Packet
         for key, value in neighbours_table.items():
@@ -101,4 +100,4 @@ class LsRouterHello(threading.Thread):
                 msg+=key+' '+value[2]+' '
 
         self.buffer.add_send(msg.split(' '))
-        self.seq_nb= (self.seq_nb+1)%100
+        self.routing_table.seq_nb= (self.routing_table.seq_nb+1)%100
