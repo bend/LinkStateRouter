@@ -44,31 +44,7 @@ class LsRouterListener(threading.Thread):
         packet = packet.decode('ASCII')
         tokens = packet.split(' ')
         if tokens[0] == Type.HELLO:
-            logging.debug("Received HELLO packet from " + tokens[1])
-            if len(tokens) != 3:
-                logging.error("Hello Packet error")
-            sender = tokens[1]
-            receiver = tokens[2]
-            if receiver == self.routing_table.router_name:
-                if sender in self.routing_table.neighbours:
-                    self.routing_table.neighbours[sender][3] = time.time()
-                    if not self.routing_table.neighbours[sender][4] :
-                        # Link is now active
-                        logging.info("New active link "+sender)
-                        self.routing_table.neighbours[sender][4] = True
-                        if not self.routing_table.graph.has_node(sender):
-                            self.routing_table.graph.add_node(sender)
-                        if not self.routing_table.graph.has_edge((self.routing_table.router_name, sender)):
-                            self.routing_table.graph.add_edge((self.routing_table.router_name, sender), \
-                                          int(self.routing_table.neighbours[sender][2]))
-                        self.routing_table.table = get_next_step(self.routing_table.graph, \
-                                                                 self.routing_table.router_name)
-                        self.routing_table.update()
-                        self.send_lsp()
-                else:
-                    logging.error("Received HELLO from unknown")
-            else:
-                logging.warning("Received HELLO not intended to router")
+            self.handle_hello(tokens)
         elif tokens[0] == Type.LSP:
             self.handle_lsp(tokens,addr)
         elif tokens[0] == Type.LSACK:
@@ -87,6 +63,34 @@ class LsRouterListener(threading.Thread):
                 self.buffer.add_send([Type.DATA,sender, receiver, msg]) 
         else:
             logging.error("Invalid packet received")
+    
+
+    def handle_hello(self, tokens):
+        logging.debug("Received HELLO packet from " + tokens[1])
+        if len(tokens) != 3:
+            logging.error("Hello Packet error")
+        sender = tokens[1]
+        receiver = tokens[2]
+        if receiver == self.routing_table.router_name:
+            if sender in self.routing_table.neighbours:
+                self.routing_table.neighbours[sender][3] = time.time()
+                if not self.routing_table.neighbours[sender][4] :
+                    # Link is now active
+                    logging.info("New active link "+sender)
+                    self.routing_table.neighbours[sender][4] = True
+                    if not self.routing_table.graph.has_node(sender):
+                        self.routing_table.graph.add_node(sender)
+                    if not self.routing_table.graph.has_edge((self.routing_table.router_name, sender)):
+                        self.routing_table.graph.add_edge((self.routing_table.router_name, sender), \
+                                      int(self.routing_table.neighbours[sender][2]))
+                    self.routing_table.table = get_next_step(self.routing_table.graph, \
+                                                             self.routing_table.router_name)
+                    self.routing_table.update()
+                    self.send_lsp()
+            else:
+                logging.error("Received HELLO from unknown")
+        else:
+            logging.warning("Received HELLO not intended to router")
 
 
     def handle_lsp(self, tokens, addr):

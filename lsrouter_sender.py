@@ -45,7 +45,7 @@ class LsRouterSender(threading.Thread):
             tosend = tosend.encode('ASCII')
             self.router_socket.sendto(tosend,addr)
             logging.debug("LSACK sent seq# "+str(tokens[2]))
-        except socket.error:
+        except :
             logging.error("Could not send, socket error")
 
     def send_lsp(self, tokens):
@@ -61,7 +61,7 @@ class LsRouterSender(threading.Thread):
                     logging.debug("LSP sent. seq#: "+tokens[2]+" to "+key)
                     value[Field.LSPLIST][tokens[2]]=[time.time(), tokens]
             self.routing_table.lsp_timestamp=time.time() #Update LSP timestamp
-        except socket.error:
+        except:
             logging.error("Could not send, socket error")
     
     def send_lsp_one(self, tokens):
@@ -77,7 +77,7 @@ class LsRouterSender(threading.Thread):
             # Update timestamp of LSP
             value[Field.LSPLIST][tokens[4]][0] = time.time()
             self.routing_table.lsp_timestamp=time.time() #Update time
-        except socket.error:
+        except:
             logging.error("Could not send, socket error")
         
 
@@ -97,7 +97,7 @@ class LsRouterSender(threading.Thread):
                     logging.error("Via is not a neighbour "+via)
             else:
                 logging.error("Unknown host "+receiver)
-        except socket.error:
+        except: 
             logging.error("Could not send, socket error")
 
     def send_hello(self, tokens):
@@ -111,7 +111,7 @@ class LsRouterSender(threading.Thread):
             tosend = tosend.encode('ASCII')
             # Add LSP to send buffer
             self.router_socket.sendto(tosend,addr)
-        except socket.error:
+        except :
             logging.error("Could not send, socket error")
 
 

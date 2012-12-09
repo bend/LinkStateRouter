@@ -7,6 +7,8 @@ from graph import graph
 from dijkstra import *
 
 class LsRouterHello(threading.Thread):
+    """ Sends regular HELLO and LSP packet
+        Resends LSP if not acked """
 
     def __init__(self, router_socket, routing_table, hello_interval, lsp_interval, buffer):
         threading.Thread.__init__(self)
