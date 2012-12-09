@@ -49,7 +49,7 @@ class LsRouterTable:
                 else:
                     self.neighbours[split_line[0]] = split_line[1:]
                     self.neighbours[split_line[0]].append(time.time()) #timestamp hello
-                    self.neighbours[split_line[0]].append(True) #active
+                    self.neighbours[split_line[0]].append(False) #inactive
                     self.neighbours[split_line[0]].append({})
 
                     self.add_entry(split_line[0], split_line[0])
