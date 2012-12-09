@@ -67,7 +67,7 @@ def print_help():
 options, remainder = getopt.getopt(sys.argv[1:], 'v:l:h:c:', ['log-level=','lsp-interval=','hello-interval='])
 
 
-log_level = logging.INFO
+log_level = logging.DEBUG
 hello_interval = 5
 lsp_interval = 60
 config = None

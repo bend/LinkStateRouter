@@ -146,7 +146,9 @@ class LsRouterListener(threading.Thread):
         sender = tokens[1]
         changed = False
         i = 3
+        active_links= []
         while i < (len(tokens) - 1):
+            active_links += [tokens[i]]
             #The edge is already in the graph
             if self.routing_table.graph.has_edge((sender, tokens[i])):
                 #The edge weight isn't the same as known in the graph
@@ -159,7 +161,20 @@ class LsRouterListener(threading.Thread):
                 self.routing_table.graph.add_edge((sender, tokens[i]), int(tokens[i+1]))
                 changed = True
             i += 2
-            
+#        print('graoh', self.routing_table.graph)
+#        print('token', tokens[1])
+#        print('activ', active_links)
+#        print("neig", self.routing_table.graph.neighbors(tokens[1]))
+        to_rm = []
+        for node in self.routing_table.graph.neighbors(tokens[1]):
+#            print('node', node)
+            if node not in active_links:
+#                print('not in')
+                to_rm += [node]
+        if to_rm:
+            changed = True
+            for node in to_rm:
+                self.routing_table.graph.del_edge((tokens[1], node))
         return changed
 
     def handle_ack(self, tokens, addr):
