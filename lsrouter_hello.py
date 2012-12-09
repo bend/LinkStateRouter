@@ -102,21 +102,3 @@ class LsRouterHello(threading.Thread):
 
         self.buffer.add_send(msg.split(' '))
         self.seq_nb= (self.seq_nb+1)%100
-
-
-    """
-        msg = msg.encode('ASCII')
-        
-        for key,value in neighbours_table.items():
-            if value[Field.ACTIVE]:
-                neighbours_table[key][5] = False # Ack not received for this lsp
-                logging.debug("Sending LSP to "+key+" seq # "+str(self.seq_nb))
-                self.router_socket.sendto(msg,(value[0], int(value[1])))
-                value[Field.TLSP] = time.time()
-                value[Field.LSPNB] = self.seq_nb
-        self.routing_table.lsp_timestamp=time.time() #send time of the lsp
-        self.seq_nb= (self.seq_nb+1)%100
-    except socket.error:
-        logging.error("Could not send, socket error")
-"""
-

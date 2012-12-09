@@ -64,6 +64,7 @@ class LsRouterListener(threading.Thread):
                         self.routing_table.table = get_next_step(self.routing_table.graph, \
                                                                  self.routing_table.router_name)
                         self.routing_table.update()
+                        self.send_lsp()
                 else:
                     logging.error("Received HELLO from unknown")
             else:
@@ -200,3 +201,16 @@ class LsRouterListener(threading.Thread):
                 logging.debug("LSACK received from "+sender+" seq # "+tokens[2])
                 return
         logging.debug("Received old or unintended LSACK "+tokens[2])
+    
+    def send_lsp(self):
+        """ Sends LSP to all neighbours"""
+        sender = self.routing_table.router_name
+        msg = 'LSP '+sender+' '+str(self.seq_nb)+' '
+        neighbours_table = self.routing_table.neighbours
+        # Build LSP Packet
+        for key, value in neighbours_table.items():
+            if value[Field.ACTIVE]:
+                msg+=key+' '+value[2]+' '
+
+        self.buffer.add_send(msg.split(' '))
+        self.seq_nb= (self.seq_nb+1)%100
