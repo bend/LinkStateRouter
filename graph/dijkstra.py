@@ -63,9 +63,12 @@ def get_next_step(graph, sourceNode):
         and as value the next step form sourceNode in order to reach the key 
         by the smallest path.
     '''
+    #print(graph)
     dist = {}
     previous = {}
     shortest_path(graph, sourceNode, dist, previous)
+    #print('dist', dist)
+    #print('prev', previous)
     
     result = {}
     vertices = graph.nodes()
@@ -76,6 +79,8 @@ def get_next_step(graph, sourceNode):
             to_pop += [key]
     for key in to_pop:
         dist.pop(key)
+        
+    #print('dist2', dist)
     #dist.pop(sourceNode)
 
     while dist:
@@ -94,9 +99,13 @@ def get_next_step(graph, sourceNode):
         
         for node in treated:
             result[node] = nextkey
-            dist.pop(node)
+            if node in dist:
+                dist.pop(node)
         result[nextkey] = nextkey
-        dist.pop(nextkey)
+        #print(dist)
+        #print(nextkey)
+        if nextkey in dist:
+            dist.pop(nextkey)
         
     return result
             

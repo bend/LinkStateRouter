@@ -129,7 +129,7 @@ class LsRouterListener(threading.Thread):
             # Parse lsp and put it in table
             #sender not in routing table and thus, not in graph
             self.routing_table.seq[sender] = seq_nb
-            if sender not in self.routing_table.table:
+            if sender not in self.routing_table.table and sender not in self.routing_table.graph:
                 self.routing_table.graph.add_node(sender)
 
         changed = self.add_edges(tokens)

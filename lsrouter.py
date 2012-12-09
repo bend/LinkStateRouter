@@ -44,6 +44,7 @@ class LsRouter:
             command = sys.stdin.readline()
             cmd = command.split(' ')
             if cmd[0].strip() == "send":
+                print(self.routing_table.graph)
                 if len(cmd) >= 3:
                     self.buffer.add_send(["DATA", self.routing_table.router_name, cmd[1], cmd[2]])
                     print("Message sent")
@@ -66,7 +67,7 @@ def print_help():
 options, remainder = getopt.getopt(sys.argv[1:], 'v:l:h:c:', ['log-level=','lsp-interval=','hello-interval='])
 
 
-log_level = logging.DEBUG
+log_level = logging.INFO
 hello_interval = 5
 lsp_interval = 60
 config = None
