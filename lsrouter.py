@@ -69,7 +69,7 @@ options, remainder = getopt.getopt(sys.argv[1:], 'v:l:h:c:', ['log-level=','lsp-
 
 log_level = logging.INFO
 hello_interval = 5
-lsp_interval = 60
+lsp_interval = 10
 config = None
 
 for opt, arg in options:

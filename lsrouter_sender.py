@@ -50,11 +50,13 @@ class LsRouterSender(threading.Thread):
     def send_lsp(self, tokens):
         """ Forwards lsp to all neighbours"""
         try:
+#            print('send lsp')
             tosend = " "
             tosend=tosend.join(tokens)
             tosend = tosend.encode('ASCII')
             for key,value in self.routing_table.neighbours.items():
                 if value[Field.ACTIVE]:
+#                    print(key)
                     addr = (value[Field.HOST], int(value[Field.PORT]))
                     self.router_socket.sendto(tosend,addr)
                     logging.debug("LSP sent. seq#: "+tokens[2]+" to "+key)

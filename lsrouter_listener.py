@@ -87,14 +87,15 @@ class LsRouterListener(threading.Thread):
                 self.buffer.add_send([Type.DATA,sender, receiver, msg]) 
         else:
             logging.error("Invalid packet received")
-            print(tokens)
+#            print(tokens)
 
 
     def handle_lsp(self, tokens, addr):
         """ Handle LSP packets. Discard if already received, 
         update routing table and forward if not already received"""
-        print(tokens)
-        print(self.routing_table.graph)
+        if tokens[1] == 'R1':
+            print(tokens)
+            print(self.routing_table.graph)
         sender = tokens[1]
         seq_nb = tokens[2]
         # Keep track of seq to avoid multiple receive and send of lsack
@@ -104,20 +105,25 @@ class LsRouterListener(threading.Thread):
             self.buffer.add_send([Type.LSACK, sender, seq_nb, addr])
             return
         if sender in self.routing_table.seq:
+            
             if self.routing_table.seq[sender] == seq_nb:
                 # LSP already received, skip it
                 logging.debug("Skipping already received LSP "+seq_nb)
                 self.buffer.add_send([Type.LSACK, sender, seq_nb,addr])
                 return
             else:
+#                print('in porwer else')
                 old_seq =  self.routing_table.seq[sender]
                 if int(seq_nb) == int(old_seq)+1:
                     # Good Seq received, ack it
+                    # Excpected Newer
                     logging.debug("Received LSP from "+sender+" seq # "+seq_nb)
                     self.routing_table.seq[sender] = seq_nb
                 else:
                     # Check if packet is newer of older
+#                    print('lse')
                     if (int(old_seq)+1)%100 <= int(seq_nb) and int(seq_nb) <= (int(old_seq)+51)%100:
+#                        print('in newer')
                         # Newer
                         logging.debug("Received LSP from "+sender+" seq # "+seq_nb)
                         self.routing_table.seq[sender] = seq_nb
