@@ -38,7 +38,7 @@ class LsRouterHello(threading.Thread):
                         # Remove not acked list
                         value[Field.LSPLIST] = {}
                         logging.warning("Link "+key+" is inactive")
-                        if not self.routing_table.graph.has_edge((self.routing_table.router_name, key)):
+                        if self.routing_table.graph.has_edge((self.routing_table.router_name, key)):
                             self.routing_table.graph.del_edge((self.routing_table.router_name, key))
 #                        if not self.routing_table.graph.neighbors(key):
 #                            self.routing_table.graph.del_node(key)
