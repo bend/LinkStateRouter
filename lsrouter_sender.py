@@ -59,7 +59,8 @@ class LsRouterSender(threading.Thread):
                     addr = (value[Field.HOST], int(value[Field.PORT]))
                     self.router_socket.sendto(tosend,addr)
                     logging.debug("LSP sent. seq#: "+tokens[2]+" to "+key)
-                    value[Field.LSPLIST][tokens[2]]=[time.time(), tokens]
+                    # Put LSP in ack needed list 
+                    value[Field.LSPLIST][int(tokens[2])]=[time.time(), tokens]
             self.routing_table.lsp_timestamp=time.time() #Update LSP timestamp
         except:
             logging.error("Could not send, socket error")
@@ -75,7 +76,7 @@ class LsRouterSender(threading.Thread):
             self.router_socket.sendto(tosend,addr)
             logging.debug("LSP resent. seq#: "+tokens[4]+" to "+tokens[1])
             # Update timestamp of LSP
-            value[Field.LSPLIST][tokens[4]][0] = time.time()
+            value[Field.LSPLIST][int(tokens[4])][0] = time.time()
             self.routing_table.lsp_timestamp=time.time() #Update time
         except:
             logging.error("Could not send, socket error")
