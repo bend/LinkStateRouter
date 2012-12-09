@@ -34,7 +34,6 @@ class LsRouterHello(threading.Thread):
         while(self.send):
             for key, value in routing_table.items():
                 if value[Field.ACTIVE] or init:
-                    init = False # Init phase completed
                     if value[Field.TSH] < time.time() - self.hello_interval*3:
                         # Link is dead
                         value[Field.ACTIVE] = False
@@ -65,7 +64,7 @@ class LsRouterHello(threading.Thread):
                             if lsp_to[0] < time.time() - 5:
                                 # LSP not acket in more than 5 sec
                                 self.send_lsp_one(key, lsp_to[1])
-
+            init = False # Init phase completed
             # Update timestamp
             if hello_update:
                 last_hello_timestamp = time.time()
