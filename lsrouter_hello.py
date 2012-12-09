@@ -28,9 +28,13 @@ class LsRouterHello(threading.Thread):
         router_name = self.routing_table.router_name
         last_hello_timestamp = 0
         hello_update = False
+        # Init phase, send hello to all neighbours
+        init = True
+
         while(self.send):
             for key, value in routing_table.items():
-                if value[Field.ACTIVE]:
+                if value[Field.ACTIVE] or init:
+                    init = False # Init phase completed
                     if value[Field.TSH] < time.time() - self.hello_interval*3:
                         # Link is dead
                         value[Field.ACTIVE] = False
