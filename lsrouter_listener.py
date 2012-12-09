@@ -87,15 +87,11 @@ class LsRouterListener(threading.Thread):
                 self.buffer.add_send([Type.DATA,sender, receiver, msg]) 
         else:
             logging.error("Invalid packet received")
-#            print(tokens)
 
 
     def handle_lsp(self, tokens, addr):
         """ Handle LSP packets. Discard if already received, 
         update routing table and forward if not already received"""
-        if tokens[1] == 'R1':
-            print(tokens)
-            print(self.routing_table.graph)
         sender = tokens[1]
         seq_nb = tokens[2]
         # Keep track of seq to avoid multiple receive and send of lsack
@@ -112,7 +108,6 @@ class LsRouterListener(threading.Thread):
                 self.buffer.add_send([Type.LSACK, sender, seq_nb,addr])
                 return
             else:
-#                print('in porwer else')
                 old_seq =  self.routing_table.seq[sender]
                 if int(seq_nb) == int(old_seq)+1:
                     # Good Seq received, ack it
@@ -121,9 +116,7 @@ class LsRouterListener(threading.Thread):
                     self.routing_table.seq[sender] = seq_nb
                 else:
                     # Check if packet is newer of older
-#                    print('lse')
                     if (int(old_seq)+1)%100 <= int(seq_nb) and int(seq_nb) <= (int(old_seq)+51)%100:
-#                        print('in newer')
                         # Newer
                         logging.debug("Received LSP from "+sender+" seq # "+seq_nb)
                         self.routing_table.seq[sender] = seq_nb
@@ -171,15 +164,9 @@ class LsRouterListener(threading.Thread):
                 self.routing_table.graph.add_edge((sender, tokens[i]), int(tokens[i+1]))
                 changed = True
             i += 2
-#        print('graoh', self.routing_table.graph)
-#        print('token', tokens[1])
-#        print('activ', active_links)
-#        print("neig", self.routing_table.graph.neighbors(tokens[1]))
         to_rm = []
         for node in self.routing_table.graph.neighbors(tokens[1]):
-#            print('node', node)
             if node not in active_links:
-#                print('not in')
                 to_rm += [node]
         if to_rm:
             changed = True
@@ -221,5 +208,5 @@ class LsRouterListener(threading.Thread):
             if value[Field.ACTIVE]:
                 msg+=key+' '+value[2]+' '
 
-        self.buffer.add_send(msg.split(' '))
         self.routing_table.seq_nb = (self.routing_table.seq_nb+1)%100
+        self.buffer.add_send(msg.split(' '))
