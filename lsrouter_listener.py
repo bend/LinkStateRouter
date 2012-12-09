@@ -93,6 +93,8 @@ class LsRouterListener(threading.Thread):
     def handle_lsp(self, tokens, addr):
         """ Handle LSP packets. Discard if already received, 
         update routing table and forward if not already received"""
+        print(tokens)
+        print(self.routing_table.graph)
         sender = tokens[1]
         seq_nb = tokens[2]
         # Keep track of seq to avoid multiple receive and send of lsack
@@ -137,6 +139,7 @@ class LsRouterListener(threading.Thread):
             self.routing_table.table = get_next_step(self.routing_table.graph, \
                                                      self.routing_table.router_name)
             self.routing_table.update()
+            self.send_lsp()
         # Send ack to sender
         self.buffer.add_send([Type.LSACK, sender, seq_nb, addr])
         # Forward to neighboors (LSP Packet)
