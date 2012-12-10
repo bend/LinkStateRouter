@@ -49,7 +49,8 @@ class LsRouterHello(threading.Thread):
                         self.routing_table.update()
                         # Send LSP to neighbours because new dead link detected
                         self.send_lsp()
-                        self.routing_table.seq.pop(key)
+                        if key in self.routing_table.seq:
+                            self.routing_table.seq.pop(key)
                     if last_hello_timestamp < time.time() - self.hello_interval:
                         # Send HELLO because timeout
                         self.send_hello(router_name, key, (value[0], int(value[1])))
