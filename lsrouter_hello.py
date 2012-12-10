@@ -67,6 +67,7 @@ class LsRouterHello(threading.Thread):
 
             if self.routing_table.lsp_timestamp < time.time() - self.lsp_interval:
                 # Send LSP because MAX_LSP_DELAY reached
+                print("Sending LSP")
                 self.send_lsp()
             time.sleep(1)
     
