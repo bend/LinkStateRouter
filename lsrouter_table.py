@@ -80,5 +80,6 @@ class LsRouterTable:
         toreturn += "+---------------+\n"
         for router, via in self.table.items():
             toreturn+="| "+router +"\t| " +via+ "\t|\n"
+        toreturn += "+---------------+\n"
         return toreturn
 
