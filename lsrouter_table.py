@@ -6,7 +6,7 @@ from type import *
 class LsRouterTable:
 
     neighbours = {} #Neighbours
-    table = {} # routing table : [Host: [via, last_lsp_seq_nb]]
+    table = {} # routing table : [Host: [via]]
     seq = {}
     graph = None
     update_timestamp = 0 # timestamp of the routing table
@@ -52,7 +52,6 @@ class LsRouterTable:
                     self.neighbours[split_line[0]].append(False) #inactive
                     self.neighbours[split_line[0]].append({})
 
-                    self.add_entry(split_line[0], split_line[0])
             i+=1
         f.close()
 
@@ -64,4 +63,22 @@ class LsRouterTable:
         #Will update the table
         #this should be called after updating the table
         self.update_timestamp = time.time()
+
+    def __str__(self):
+        toreturn =  self.router_name+":"+self.router_port+"\n"
+        toreturn += "+-----------------------------------------------+\n"
+        toreturn += "| \t\tNeighbours\t\t\t|\n"
+        toreturn += "+-----------------------------------------------+\n"
+        for neighbor_name, spec in self.neighbours.items():
+            toreturn+="| "+ neighbor_name+"\t| "+spec[0]+":"+spec[1]+"\t| Active: "+str(spec[4])+"\t|\n"
+        toreturn += "+-----------------------------------------------+\n"
+        toreturn+="\n"
+        toreturn += "+---------------+\n"
+        toreturn += "| Routing Table |\n"
+        toreturn += "+---------------+\n"
+        toreturn += "| R\t| Via \t|\n"
+        toreturn += "+---------------+\n"
+        for router, via in self.table.items():
+            toreturn+="| "+router +"\t| " +via+ "\t|\n"
+        return toreturn
 

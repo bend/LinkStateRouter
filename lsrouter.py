@@ -50,6 +50,8 @@ class LsRouter:
                     print("Message sent")
                 else:
                     print("Command usage : send [ROUTER NAME] [message]")
+            elif cmd[0].strip() == "print":
+                print(self.routing_table)
         
 
 

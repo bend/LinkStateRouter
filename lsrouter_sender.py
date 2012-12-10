@@ -116,5 +116,3 @@ class LsRouterSender(threading.Thread):
             logging.error("Could not send, socket error")
 
 
-
-
