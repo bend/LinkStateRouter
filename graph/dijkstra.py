@@ -63,7 +63,6 @@ def get_next_step(graph, sourceNode):
         and as value the next step form sourceNode in order to reach the key 
         by the smallest path.
     '''
-    #print(graph)
     dist = {}
     previous = {}
     shortest_path(graph, sourceNode, dist, previous)

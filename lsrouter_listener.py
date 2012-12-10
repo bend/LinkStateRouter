@@ -20,12 +20,12 @@ class LsRouterListener(threading.Thread):
     def create_graph(self):
         newgraph = graph()
         newgraph.add_node(self.routing_table.router_name)
-        for key in self.routing_table.neighbours:
-            newgraph.add_node(key)
-            newgraph.add_edge((self.routing_table.router_name, key), \
-                            int(self.routing_table.neighbours[key][2]))
-        self.routing_table.table = get_next_step(newgraph, \
-                                                 self.routing_table.router_name)
+#        for key in self.routing_table.neighbours:
+#            newgraph.add_node(key)
+#            newgraph.add_edge((self.routing_table.router_name, key), \
+#                            int(self.routing_table.neighbours[key][2]))
+#        self.routing_table.table = get_next_step(newgraph, \
+#                                                 self.routing_table.router_name)
         self.routing_table.update()
         return newgraph
 
@@ -176,6 +176,8 @@ class LsRouterListener(threading.Thread):
             changed = True
             for node in to_rm:
                 self.routing_table.graph.del_edge((tokens[1], node))
+                if not self.routing_table.graph.neighbors(node):
+                    self.routing_table.seq.pop(node)
         return changed
 
     def handle_ack(self, tokens, addr):
