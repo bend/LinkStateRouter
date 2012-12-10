@@ -58,7 +58,7 @@ class LsRouterListener(threading.Thread):
             msg = tokens[3]
             if receiver == self.routing_table.router_name:
                 # Packet destination is self
-                print("Message received: "+msg)
+                print("Message received from " + tokens[1] +":\n"+msg)
             else:
                 self.buffer.add_send([Type.DATA,sender, receiver, msg]) 
         else:

@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# Authors : Daccache Benoît
+#           Debroux Léonard
 import socket
 import logging
 from lsrouter_table import *
@@ -69,9 +71,9 @@ options, remainder = getopt.getopt(sys.argv[1:], 'v:l:h:c:', ['log-level=','lsp-
 
 
 log_level = logging.INFO
-hello_interval = 5
-lsp_interval = 30
-config = None
+hello_interval = 5 # HELLO_INTERVAL
+lsp_interval = 60  # MAX_DELAY
+config = None      # Config file
 
 for opt, arg in options:
     if opt in ('-v','--log-level'):

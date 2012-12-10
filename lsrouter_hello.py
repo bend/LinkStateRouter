@@ -49,6 +49,7 @@ class LsRouterHello(threading.Thread):
                         self.routing_table.update()
                         # Send LSP to neighbours because new dead link detected
                         self.send_lsp()
+                        self.routing_table.seq.pop(key)
                     if last_hello_timestamp < time.time() - self.hello_interval:
                         # Send HELLO because timeout
                         self.send_hello(router_name, key, (value[0], int(value[1])))
@@ -66,9 +67,7 @@ class LsRouterHello(threading.Thread):
                 hello_update = False
 
             if self.routing_table.lsp_timestamp < time.time() - self.lsp_interval:
-                print('max delay')
                 # Send LSP because MAX_LSP_DELAY reached
-                print("Sending LSP")
                 self.send_lsp()
             time.sleep(1)
     

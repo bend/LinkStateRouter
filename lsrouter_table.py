@@ -7,7 +7,7 @@ class LsRouterTable:
 
     neighbours = {} #Neighbours
     table = {} # routing table : [Host: [via]]
-    seq = {}
+    seq = {} # [Host: [seq_nb]]
     graph = None
     update_timestamp = 0 # timestamp of the routing table
     lsp_timestamp = 0
