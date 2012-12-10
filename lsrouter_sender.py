@@ -77,7 +77,6 @@ class LsRouterSender(threading.Thread):
             logging.debug("LSP resent. seq#: "+tokens[4]+" to "+tokens[1])
             # Update timestamp of LSP
             value[Field.LSPLIST][int(tokens[4])][0] = time.time()
-            self.routing_table.lsp_timestamp=time.time() #Update time
         except:
             logging.error("Could not send, socket error")
         
