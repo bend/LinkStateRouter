@@ -176,7 +176,7 @@ class LsRouterListener(threading.Thread):
             changed = True
             for node in to_rm:
                 self.routing_table.graph.del_edge((tokens[1], node))
-                if not self.routing_table.graph.neighbors(node):
+                if not self.routing_table.graph.neighbors(node) and node in self.routing_table.seq:
                     self.routing_table.seq.pop(node)
         return changed
 
