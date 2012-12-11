@@ -40,7 +40,7 @@ class LsRouterSender(threading.Thread):
         """ Send LSACK to the sender of the LSP """
         try:
             tosend = " "
-            tosend = tosend.join(tokens[0:3])
+            tosend = tosend.join(tokens[0:3]).strip()
             addr = tokens[3]
             tosend = tosend.encode('ASCII')
             self.router_socket.sendto(tosend,addr)
@@ -52,7 +52,7 @@ class LsRouterSender(threading.Thread):
         """ Forwards lsp to all neighbours"""
         try:
             tosend = " "
-            tosend=tosend.join(tokens)
+            tosend=tosend.join(tokens).strip()
             tosend = tosend.encode('ASCII')
             for key,value in self.routing_table.neighbours.items():
                 if value[Field.ACTIVE]:
@@ -70,7 +70,7 @@ class LsRouterSender(threading.Thread):
         """ Send LSP to one neighbour """
         try:
             tosend = " "
-            tosend=tosend.join(tokens[2:]) # Don't take the 2 first fields
+            tosend=tosend.join(tokens[2:]).strip() # Don't take the 2 first fields
             tosend = tosend.encode('ASCII')
             value = self.routing_table.neighbours[tokens[1]]
             addr = (value[Field.HOST], int(value[Field.PORT]))
@@ -108,7 +108,7 @@ class LsRouterSender(threading.Thread):
             """ Sends HELLO Packet to addr"""
             logging.debug("Sending HELLO to "+tokens[2])
             tosend = " "
-            tosend = tosend.join(tokens[0:3])
+            tosend = tosend.join(tokens[0:3]).strip()
             tosend = tosend.encode('ASCII')
             # Add LSP to send buffer
             self.router_socket.sendto(tosend,addr)

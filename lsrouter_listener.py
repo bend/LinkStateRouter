@@ -55,7 +55,8 @@ class LsRouterListener(threading.Thread):
                 logging.error("Hello Packet error")
             sender = tokens[1]
             receiver = tokens[2]
-            msg = tokens[3]
+            msg = " "
+            msg = msg.join(tokens[3:])
             if receiver == self.routing_table.router_name:
                 # Packet destination is self
                 print("Message received from " + tokens[1] +":\n"+msg)
@@ -190,7 +191,7 @@ class LsRouterListener(threading.Thread):
         neighbours = self.routing_table.neighbours
         # Find associated HOST'S IP
         for key, value in neighbours.items():
-            if value[Field.HOST] == addr[0] and value[Field.PORT] == str(addr[1]):
+            if value[Field.HOST] == addr[0] :
                 sender = key
         if sender is None:
             logging.error("LSACK Sender not found "+addr[0]+":"+str(addr[1]))

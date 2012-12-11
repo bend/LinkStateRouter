@@ -26,7 +26,7 @@ class LsRouter:
         self.routing_table = LsRouterTable(filename)
         logging.info("Binding socket on "+self.routing_table.router_port)
         # Bind socket
-        self.router_socket.bind(("127.0.0.1", int(self.routing_table.router_port)))
+        self.router_socket.bind(("", int(self.routing_table.router_port)))
         self.hello_interval = hello_interval
         self.lsp_interval = lsp_interval
         # Create buffer
